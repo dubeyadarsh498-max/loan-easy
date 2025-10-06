@@ -16,4 +16,16 @@
     ```
     git config --global user.email "you@example.com"
     git config --global user.name "Your Name"
+    git clone https://github.com/dubeyadarsh498-max/loan-easy
+    ```
+
+- RUN:
+    ```
+    git add .
+    ```
+    ```
+    git commit -m ""
+    ```
+    ```
+    git push
     ```
