@@ -1,0 +1,27 @@
+
+{% extends 'base.html' %}
+{% block content %}
+<h2>Welcome {{ session['name'] }}</h2>
+<p>Balance: ₹{{ user.balance }}</p>
+
+{% if user.is_lender %}
+  <h3>Loans to Fund</h3>
+  {% for loan in loans %}
+    <form action="/fund/{{loan._id}}" method="post">
+      ₹{{loan.amount}} — Remaining ₹{{loan.remaining}} 
+      <input type="number" name="amount" step="0.01" required>
+      <button type="submit">Fund</button>
+    </form>
+  {% else %}
+    <p>No available loans</p>
+  {% endfor %}
+{% else %}
+  <a href="/create_loan">Create Loan Request</a>
+  <h3>Your Loans</h3>
+  {% for loan in loans %}
+    <p>₹{{loan.amount}} — Remaining ₹{{loan.remaining}}</p>
+  {% else %}
+    <p>No loans</p>
+  {% endfor %}
+{% endif %}
+{% endblock %}

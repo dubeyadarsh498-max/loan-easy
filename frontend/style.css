@@ -1,0 +1,16 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0; padding: 0;
+  background: #f9f9f9;
+}
+nav {
+  background: #333; color: white; padding: 10px;
+}
+nav a { color: white; margin-right: 15px; text-decoration: none; }
+.container { padding: 20px; }
+.flash.success { color: green; }
+.flash.danger { color: red; }
+.flash.info { color: blue; }
+form { margin: 10px 0; }
+input, button { margin: 5px; padding: 8px; }
+button { background: #007bff; color: white; border: none; border-radius: 4px; }

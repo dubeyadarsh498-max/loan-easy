@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Available Loan Requests</h1>
+<ul>
+  {% for loan in loans %}
+    <li>₹{{loan.amount}} — Remaining ₹{{loan.remaining}} — {{loan.interest_rate}}% for {{loan.term_months}} months</li>
+  {% else %}
+    <li>No loans available</li>
+  {% endfor %}
+</ul>
+{% endblock %}
