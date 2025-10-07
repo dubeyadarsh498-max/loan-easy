@@ -1,49 +1,41 @@
 // create_loan.js
-import { fetchData, getToken } from './api.js';
+import { fetchData, getToken, removeToken } from './api.js';
+import { showFlash } from './auth.js'; 
 
-const form = document.getElementById('create-loan-form');
+const createLoanForm = document.getElementById('create-loan-form');
 const userRole = localStorage.getItem('userRole');
 
-const checkPermissions = () => {
-    if (!getToken() || userRole !== 'borrower') {
-        alert('Access Denied: Only logged-in borrowers can create loan requests.');
+// Redirect if not borrower or not logged in
+if (!getToken() || userRole !== 'borrower') {
+    showFlash('Access Denied: Only logged-in borrowers can create loan requests.', 'error');
+    setTimeout(() => {
         window.location.href = 'index.html';
-        return false;
-    }
-    return true;
-};
+    }, 1500);
+}
 
-const setupFormSubmission = () => {
-    if (!checkPermissions()) return;
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+// --- Form Submission Handler ---
+createLoanForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-        const amount = Number(document.getElementById('amount').value);
-        const interestRate = Number(document.getElementById('interest_rate').value);
-        const periodMonths = Number(document.getElementById('term_months').value);
-        const purpose = document.getElementById('purpose').value; // Purpose is not in model, but sent anyway
+    const amount = document.getElementById('loan-amount').value;
+    const interestRate = document.getElementById('loan-interest').value;
+    const periodMonths = document.getElementById('loan-period').value;
 
-        const result = await fetchData('/loans/create', {
-            method: 'POST',
-            body: JSON.stringify({ amount, interestRate, periodMonths, purpose })
-        });
-
-        if (result.success) {
-            let message = 'Loan request submitted successfully!';
-            if (result.data.matched) {
-                message += ` Automatically matched with a lender (${result.data.matched.name}). Check your dashboard.`;
-            }
-            alert(message);
-            // Redirect to dashboard after successful creation
-            window.location.href = 'dashboard.html';
-        } else {
-            alert(result.msg || 'Failed to create loan request.');
-        }
+    const result = await fetchData('/loans/create', {
+        method: 'POST',
+        body: JSON.stringify({ amount, interestRate, periodMonths })
     });
-};
 
-// --- Initialization ---
-document.addEventListener('DOMContentLoaded', () => {
-    setupFormSubmission();
+    if (result.success) {
+        const matchedMessage = result.data.matched 
+            ? `Successfully matched with Lender ${result.data.matched.name}! Check dashboard to accept.`
+            : `Loan request created! Status is 'open'. We will notify you when a lender expresses interest.`;
+        
+        showFlash(matchedMessage, 'success'); 
+        createLoanForm.reset();
+        
+    } else {
+        showFlash(result.msg || 'Failed to create loan request. Check KYC status.', 'error'); 
+    }
 });

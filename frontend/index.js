@@ -1,36 +1,44 @@
 // index.js
-import { fetchData, getToken } from './api.js';
+import { fetchData, getToken, removeToken } from './api.js';
+import { showFlash } from './auth.js'; 
 
 const loanListContainer = document.getElementById('loan-list');
 const noLoansMessage = document.getElementById('no-loans-message');
 const authLinksContainer = document.getElementById('auth-links');
-const userRole = localStorage.getItem('userRole'); // Get role from local storage
+const userRole = localStorage.getItem('userRole'); 
 
 // --- UI Management ---
 
 const updateHeaderLinks = () => {
     const isLoggedIn = !!getToken();
-    
+    const userRole = localStorage.getItem('userRole');
+
     // Hide all links first
-    authLinksContainer.querySelectorAll('a').forEach(a => a.classList.add('hidden'));
+    authLinksContainer.querySelectorAll('[data-auth-link]').forEach(a => a.classList.add('hidden'));
 
     if (isLoggedIn) {
         document.querySelector('[data-auth-link="dashboard"]').classList.remove('hidden');
+        document.querySelector('[data-auth-link="profile"]').classList.remove('hidden');
         document.querySelector('[data-auth-link="logout"]').classList.remove('hidden');
+        
+        if (userRole === 'admin') {
+            document.querySelector('[data-auth-link="admin"]').classList.remove('hidden');
+        }
     } else {
         document.querySelector('[data-auth-link="login"]').classList.remove('hidden');
         document.querySelector('[data-auth-link="register"]').classList.remove('hidden');
     }
 };
 
+
 const createLoanCard = (loan) => {
     const isLender = userRole === 'lender';
-    
+
     const card = document.createElement('article');
     card.className = 'loan-item';
     card.setAttribute('data-loan-id', loan._id);
     card.setAttribute('data-amount', loan.amount);
-    card.setAttribute('data-remaining', loan.amount); // Assuming remaining is full amount for open loans
+    card.setAttribute('data-remaining', loan.amount); 
     card.setAttribute('data-interest-rate', loan.interestRate);
     card.setAttribute('data-term-months', loan.periodMonths);
 
@@ -56,19 +64,21 @@ const createLoanCard = (loan) => {
 // --- Data Fetching and Initialization ---
 
 const fetchAndDisplayLoans = async () => {
+    if (!getToken()) {
+        loanListContainer.innerHTML = `<p class="empty-state">Please login to view open loan requests.</p>`;
+        noLoansMessage.classList.add('hidden');
+        return;
+    }
+    
     if (userRole !== 'lender') {
-        // Only lenders are allowed to view open loans on this endpoint, 
-        // but we'll still run the code to display dummy/local data for non-lenders
-        // In a real app, this should fetch public data or redirect.
-        if (loanListContainer.children.length === 0) {
-            noLoansMessage.classList.remove('hidden');
-        }
+        loanListContainer.innerHTML = `<p class="empty-state">Only lenders can view open loan requests for funding.</p>`;
+        noLoansMessage.classList.add('hidden');
         return;
     }
 
     const result = await fetchData('/loans/open');
 
-    loanListContainer.innerHTML = ''; // Clear previous content
+    loanListContainer.innerHTML = ''; 
 
     if (result.success && result.data.length > 0) {
         result.data.forEach(loan => {
@@ -87,22 +97,19 @@ const setupFundingListeners = () => {
     loanListContainer.querySelectorAll('.fund-form').forEach(form => {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const loanId = e.target.querySelector('button').getAttribute('data-loan-id');
-            // In your backend, the /:id/interest route does NOT take an amount, 
-            // it just matches the lender. We'll stick to the backend definition.
             
             const result = await fetchData(`/loans/${loanId}/interest`, {
                 method: 'POST',
-                body: JSON.stringify({}) // Empty body as per backend
+                body: JSON.stringify({})
             });
 
             if (result.success) {
-                alert('Interest expressed! Waiting for borrower acceptance.');
-                // Optional: Reload the list or update the card status
+                showFlash('Interest expressed! Waiting for borrower acceptance.', 'success');
                 fetchAndDisplayLoans(); 
             } else {
-                alert(result.msg || 'Failed to express interest.');
+                showFlash(result.msg || 'Failed to express interest.', 'error');
             }
         });
     });
@@ -111,7 +118,8 @@ const setupFundingListeners = () => {
 const setupLogout = () => {
     document.querySelector('[data-auth-link="logout"]').addEventListener('click', (e) => {
         e.preventDefault();
-        localStorage.clear(); // Clears token and userRole
+        // IMPORTANT: Use the exported utility
+        removeToken(); 
         window.location.href = 'index.html';
     });
 };

@@ -1,148 +1,124 @@
 // dashboard.js
 import { fetchData, getToken, removeToken } from './api.js';
+import { showFlash } from './auth.js'; 
 
-const userNameEl = document.getElementById('user-name');
-const userBalanceEl = document.getElementById('user-balance');
-const borrowerSection = document.getElementById('borrower-dashboard');
-const lenderSection = document.getElementById('lender-dashboard');
-const loansBorrowedList = document.getElementById('loans-borrowed-list');
-const loansLentList = document.getElementById('loans-lent-list');
-const noBorrowedLoans = document.getElementById('no-borrowed-loans');
-const noLentLoans = document.getElementById('no-lent-loans');
+const loansBorrowedBody = document.getElementById('loans-borrowed-body');
+const loansLentBody = document.getElementById('loans-lent-body');
+
+const userId = localStorage.getItem('userId');
 const userRole = localStorage.getItem('userRole');
 
+// Redirect if not logged in
+if (!getToken() || !userId) {
+    window.location.href = 'login.html';
+}
 
-// Helper to create a loan summary list item
-const createLoanSummary = (loan, isLent = false) => {
-    const div = document.createElement('div');
-    div.className = 'loan-summary-item';
+// --- Data Handlers ---
 
-    if (isLent) {
-        // This is simplified as your backend doesn't have an 'investments' table, 
-        // it uses `matchedWith` and `status` on the LoanRequest.
-        // We assume we fetch loans where `matchedWith` is the user's ID.
-        div.innerHTML = `
-            <p>
-                **₹<span data-lent-amount>${loan.amount.toLocaleString()}</span>** lent to Loan #<span data-lent-loan-id>${loan._id.slice(-6).toUpperCase()}</span> 
-                <span class="loan-status loan-status-${loan.status}">${loan.status}</span>
-            </p>
-            <p class="secondary-info">Borrower: ${loan.borrower.name} | Rate: ${loan.interestRate}%</p>
-        `;
+const handleResponse = async (loanId, action) => {
+    const result = await fetchData(`/loans/${loanId}/respond`, {
+        method: 'POST',
+        body: JSON.stringify({ action })
+    });
+
+    if (result.success) {
+        showFlash(`Loan response saved. Status: ${action}.`, 'success'); 
+        fetchDashboardData();
     } else {
-        // Borrowed loan
-        const statusClass = loan.status === 'accepted' ? 'success' : loan.status === 'matched' ? 'pending' : 'default';
-        
-        // Match acceptance/rejection
-        let actionButtons = '';
-        if (loan.status === 'matched' && loan.borrower.toString() === localStorage.getItem('userId')) {
-             actionButtons = `
-                <button data-loan-id="${loan._id}" data-action="accept" class="button-link small-button">Accept Offer</button>
-                <button data-loan-id="${loan._id}" data-action="reject" class="button-link small-button secondary-button">Reject Offer</button>
-             `;
-        }
-
-        div.innerHTML = `
-            <p>
-                **₹<span data-borrowed-amount>${loan.amount.toLocaleString()}</span>** requested 
-                <span class="loan-status loan-status-${statusClass}">${loan.status}</span>
-            </p>
-            <p class="secondary-info">Lender: ${loan.matchedWith?.name || 'N/A'}</p>
-            <div class="action-group">${actionButtons}</div>
-        `;
+        showFlash(result.msg || 'Failed to respond to loan request.', 'error'); 
     }
-    return div;
 };
 
-// --- Data Fetching and Initialization ---
+const createBorrowerRow = (loan) => {
+    const tr = document.createElement('tr');
+    const shortId = loan._id.slice(-6).toUpperCase();
+    const isMatched = loan.status === 'matched';
+    const isAccepted = loan.status === 'accepted';
+    
+    tr.innerHTML = `
+        <td>#${shortId}</td>
+        <td>₹${loan.amount.toLocaleString()}</td>
+        <td>${loan.interestRate}%</td>
+        <td>${loan.periodMonths} mo</td>
+        <td>${loan.status}</td>
+        <td>${loan.matchedWith ? loan.matchedWith.name : 'N/A'}</td>
+        <td>
+            ${isMatched && !loan.borrowerAccepted ? `
+                <button class="respond-btn" data-loan-id="${loan._id}" data-action="accept">Accept Match</button>
+                <button class="respond-btn reject" data-loan-id="${loan._id}" data-action="reject">Reject</button>
+            ` : isAccepted ? 'Finalized' : 'Waiting...'}
+        </td>
+    `;
+    return tr;
+};
+
+const createLenderRow = (loan) => {
+    const tr = document.createElement('tr');
+    const shortId = loan._id.slice(-6).toUpperCase();
+    const isMatched = loan.status === 'matched';
+    const isAccepted = loan.status === 'accepted';
+
+    tr.innerHTML = `
+        <td>#${shortId}</td>
+        <td>₹${loan.amount.toLocaleString()}</td>
+        <td>${loan.interestRate}%</td>
+        <td>${loan.borrower.name}</td>
+        <td>${loan.status}</td>
+        <td>
+            ${isMatched && !loan.lenderAccepted ? `
+                <button class="respond-btn" data-loan-id="${loan._id}" data-action="accept">Confirm Fund</button>
+                <button class="respond-btn reject" data-loan-id="${loan._id}" data-action="reject">Withdraw Offer</button>
+            ` : isAccepted ? 'Finalized' : 'Pending Borrower Acceptance'}
+        </td>
+    `;
+    return tr;
+};
+
+
+// --- Data Fetching ---
 
 const fetchDashboardData = async () => {
-    // In a real app, you'd have an endpoint like /api/user/dashboard that returns all data
-    // Here we need to get user info and then their loans/investments.
-
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
-        removeToken();
-        window.location.href = 'login.html';
-        return;
+    // 1. Fetch Borrowed Loans
+    const borrowedResult = await fetchData(`/loans/borrower/${userId}`);
+    loansBorrowedBody.innerHTML = '';
+    if (borrowedResult.success && borrowedResult.data.length > 0) {
+        borrowedResult.data.forEach(loan => loansBorrowedBody.appendChild(createBorrowerRow(loan)));
+    } else {
+        loansBorrowedBody.innerHTML = `<tr><td colspan="7" class="empty-state-small">No loans requested yet.</td></tr>`;
     }
 
-    // SIMPLIFIED: Assume we fetch all loans and filter them client-side based on the role
-    // In a production app, the server should return only relevant data.
-    const allLoansResult = await fetchData('/loans/requests/all'); // Assuming a new endpoint for all user loans
-
-    // For now, let's manually fetch loans that the user is the borrower of
-    const borrowedResult = await fetchData(`/loans/borrower/${userId}`); 
-    // And loans the user is the matched lender for
-    const lentResult = await fetchData(`/loans/lender/${userId}`); 
-    
-    // Fallback if the user is not found or endpoint is missing
-    userNameEl.textContent = localStorage.getItem('userName') || 'User'; 
-    userBalanceEl.textContent = (100000).toLocaleString(); // Hardcoded balance, replace with real data
-
-    // --- RENDER BORROWER DATA ---
-    loansBorrowedList.innerHTML = '';
-    if (userRole === 'borrower') {
-        lenderSection.classList.add('hidden');
-        if (borrowedResult.success && borrowedResult.data.length > 0) {
-            borrowedResult.data.forEach(loan => loansBorrowedList.appendChild(createLoanSummary(loan, false)));
-            noBorrowedLoans.classList.add('hidden');
-            setupLoanResponseListeners();
-        } else {
-            noBorrowedLoans.classList.remove('hidden');
-        }
-    }
-
-    // --- RENDER LENDER DATA ---
+    // 2. Fetch Lent Loans (Lender only)
     if (userRole === 'lender') {
-        borrowerSection.classList.add('hidden');
+        const lentResult = await fetchData(`/loans/lender/${userId}`);
+        document.getElementById('lender-dashboard-section').style.display = 'block';
+        loansLentBody.innerHTML = '';
         if (lentResult.success && lentResult.data.length > 0) {
-            lentResult.data.forEach(loan => loansLentList.appendChild(createLoanSummary(loan, true)));
-            noLentLoans.classList.add('hidden');
-            // Lender acceptance listeners here if applicable
+            lentResult.data.forEach(loan => loansLentBody.appendChild(createLenderRow(loan)));
         } else {
-            noLentLoans.classList.remove('hidden');
+            loansLentBody.innerHTML = `<tr><td colspan="6" class="empty-state-small">No loans matched or funded yet.</td></tr>`;
         }
+    } else {
+        // Hide the lender section if not a lender
+        document.getElementById('lender-dashboard-section').style.display = 'none';
     }
+
+    // Attach listeners after DOM update
+    setupResponseListeners();
 };
 
 // --- Event Listeners ---
 
-const setupLoanResponseListeners = () => {
-    loansBorrowedList.querySelectorAll('.action-group button').forEach(button => {
-        button.addEventListener('click', async (e) => {
+const setupResponseListeners = () => {
+    document.querySelectorAll('.respond-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
             const loanId = e.target.getAttribute('data-loan-id');
             const action = e.target.getAttribute('data-action');
-            
-            const result = await fetchData(`/loans/${loanId}/respond`, {
-                method: 'POST',
-                body: JSON.stringify({ action })
-            });
-
-            if (result.success) {
-                alert(`Loan ${action}ed successfully!`);
-                fetchDashboardData(); // Refresh data
-            } else {
-                alert(result.msg || `Failed to ${action} loan.`);
-            }
+            handleResponse(loanId, action);
         });
-    });
-};
-
-const setupLogout = () => {
-    document.getElementById('logout-button').addEventListener('click', (e) => {
-        e.preventDefault();
-        localStorage.clear();
-        window.location.href = 'index.html';
     });
 };
 
 
 // --- Initialization ---
-document.addEventListener('DOMContentLoaded', () => {
-    if (!getToken()) {
-        window.location.href = 'login.html';
-        return;
-    }
-    fetchDashboardData();
-    setupLogout(); 
-});
+
+document.addEventListener('DOMContentLoaded', fetchDashboardData);

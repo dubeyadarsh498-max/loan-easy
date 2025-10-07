@@ -1,64 +1,51 @@
-// api.js
+// api.js - API Utility Functions
 
-const API_BASE_URL = '/api'; // Assuming the client serves from the same domain as the API
+const API_BASE = '/api';
 
-// --- Token Management ---
+export const getToken = () => localStorage.getItem('token');
+export const setToken = (token) => localStorage.setItem('token', token);
+export const removeToken = () => { 
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userId');
+};
 
-const getToken = () => localStorage.getItem('token');
-const setToken = (token) => localStorage.setItem('token', token);
-const removeToken = () => localStorage.removeItem('token');
-
-// --- Helper for making authenticated requests ---
-
-const fetchData = async (endpoint, options = {}) => {
+/**
+ * Generic function to handle API requests.
+ * @param {string} endpoint - The API path (e.g., /auth/login).
+ * @param {object} options - Fetch options (method, body, headers).
+ * @returns {Promise<object>} - { success: boolean, data: object|null, msg: string|null }
+ */
+export const fetchData = async (endpoint, options = {}) => {
     const token = getToken();
     
-    // Add Authorization header if a token exists
+    options.headers = {
+        'Content-Type': 'application/json',
+        ...options.headers 
+    };
+    
     if (token) {
-        options.headers = {
-            ...options.headers,
-            'Authorization': `Bearer ${token}`
-        };
-    }
-
-    // Ensure Content-Type is set for POST/PUT if body is JSON
-    if (options.body && !(options.body instanceof FormData) && !options.headers['Content-Type']) {
-        options.headers['Content-Type'] = 'application/json';
+        options.headers['Authorization'] = `Bearer ${token}`;
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, options);
+        const response = await fetch(`${API_BASE}${endpoint}`, options);
         
-        // Handle 401/403 errors globally
         if (response.status === 401 || response.status === 403) {
             removeToken();
-            // Redirect to login if unauthorized
-            if (window.location.pathname !== '/login.html') {
-                window.location.href = 'login.html';
-            }
-            return { success: false, msg: 'Authentication failed or expired.', status: response.status };
+            return { success: false, msg: 'Authentication failed. Please log in again.', status: response.status };
         }
-
+        
         const data = await response.json();
         
         if (!response.ok) {
-            // API error (e.g., 400 Bad Request)
-            return { success: false, msg: data.error || data.msg || 'An API error occurred.', status: response.status };
+            return { success: false, msg: data.msg || data.error || 'API Request Failed.', data: data };
         }
 
         return { success: true, data: data };
 
     } catch (error) {
-        console.error('Fetch error:', error);
-        return { success: false, msg: 'Network error or unable to reach server.' };
+        console.error('Network or Parse Error:', error);
+        return { success: false, msg: 'A network error occurred. Check server connection.' };
     }
-};
-
-// --- Exported functions ---
-
-export { 
-    setToken, 
-    removeToken, 
-    getToken, 
-    fetchData 
 };

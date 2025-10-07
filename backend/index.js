@@ -142,6 +142,53 @@ authRouter.post('/login', async (req,res)=>{
 // --- ROUTES: /api/loans (from routes/loans.js) ---
 const loansRouter = express.Router();
 
+
+
+// ... existing routes (create, open, interest, respond) go here ...
+
+// --- NEW ENDPOINT 1: Fetch Loans Borrowed by the User ---
+// Used by the borrower section of the dashboard
+loansRouter.get('/borrower/:userId', auth, async (req, res) => {
+    // Security check: Ensure the user is authenticated and is either the requested user or an admin
+    if (req.user._id.toString() !== req.params.userId.toString() && req.user.role !== 'admin') {
+        return res.status(403).json({ msg: 'Access denied to this user\'s borrowed loans.' });
+    }
+    
+    try {
+        const userId = req.params.userId;
+        // Find all loans where this user is the borrower
+        const loans = await LoanRequest.find({ borrower: userId })
+            .populate('matchedWith', 'name email role'); // Populate the lender info if matched
+        
+        res.json(loans);
+    } catch (e) {
+        res.status(500).json({ msg: 'Server error fetching borrowed loans.' });
+    }
+});
+
+// --- NEW ENDPOINT 2: Fetch Loans Lent (Matched) by the User ---
+// Used by the lender section of the dashboard
+loansRouter.get('/lender/:userId', auth, async (req, res) => {
+    // Security check: Ensure the user is authenticated and is either the requested user or an admin
+    if (req.user._id.toString() !== req.params.userId.toString() && req.user.role !== 'admin') {
+        return res.status(403).json({ msg: 'Access denied to this user\'s lent loans.' });
+    }
+
+    try {
+        const userId = req.params.userId;
+        // Find all loans where this user is the matched lender
+        // We only show loans that are not 'open' (i.e., 'matched', 'accepted', etc.)
+        const loans = await LoanRequest.find({ 
+            matchedWith: userId,
+            status: { $ne: 'open' } // Exclude loans that were rejected back to 'open'
+        }).populate('borrower', 'name email role'); // Populate the borrower info
+        
+        res.json(loans);
+    } catch (e) {
+        res.status(500).json({ msg: 'Server error fetching lent loans.' });
+    }
+});
+
 // Borrower creates a loan request
 loansRouter.post('/create', auth, async (req,res)=>{
   if(req.user.role !== 'borrower') return res.status(403).json({msg:'Only borrower'});
@@ -222,6 +269,57 @@ adminRouter.post('/kyc/:userId/verify', auth, async (req,res)=>{
 
 
 // --- APP USES ROUTES ---
+// --- NEW ROUTE: /api/user/profile (Fetch and Update Profile) ---
+
+// Get current user profile (using the existing 'auth' middleware)
+app.get('/api/user/profile', auth, async (req, res) => {
+    try {
+        // Fetch the user data again, excluding the hashed password for safety
+        const user = await User.findById(req.user.id).select('-password');
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+        res.json(user);
+    } catch (e) {
+        res.status(500).json({ msg: 'Server error fetching profile.' });
+    }
+});
+
+// Update current user profile
+app.put('/api/user/profile', auth, async (req, res) => {
+    const { name, maxAmount, interestRate } = req.body;
+    const updates = { name };
+
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ msg: 'User not found' });
+        }
+
+        // Only allow lender profile updates if the user is a lender
+        if (user.role === 'lender') {
+            user.lenderProfile.maxAmount = maxAmount ? Number(maxAmount) : user.lenderProfile.maxAmount;
+            user.lenderProfile.interestRate = interestRate ? Number(interestRate) : user.lenderProfile.interestRate;
+            
+            // NOTE: We update the nested object and save the full document
+            await user.save(); 
+            
+            // For response, return the main fields plus the updated profile fields
+            const updatedUser = await User.findById(req.user.id).select('-password');
+            return res.json({ msg: 'Profile and Lender settings updated.', user: updatedUser });
+        }
+
+        // Handle general borrower name update
+        if (name) user.name = name;
+        await user.save();
+        
+        const updatedUser = await User.findById(req.user.id).select('-password');
+        res.json({ msg: 'Profile updated.', user: updatedUser });
+
+    } catch (e) {
+        res.status(400).json({ error: e.message || 'Error updating profile.' });
+    }
+});
 app.use('/api/auth', authRouter);
 app.use('/api/loans', loansRouter);
 app.use('/api/admin', adminRouter);

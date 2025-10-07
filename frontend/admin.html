@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Marketplace - Admin Panel</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Minimal admin-specific CSS to make tables look good (redundant due to style.css update, but kept for safety) */
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+        .user-status.unverified { color: var(--color-error); font-weight: bold; }
+        .user-status.verified { color: var(--color-success); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo"><a href="index.html">LoanMarketplace</a></div>
+        <nav class="main-nav">
+            <a href="index.html">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="/logout" data-auth-link="logout">Logout</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        
+        <div id="flash-message" class="hidden flash-message">
+            <p data-target="flash-text">Message placeholder</p>
+        </div>
+
+        <h1>Admin Panel</h1>
+
+        <section>
+            <h2>User KYC Verification Queue</h2>
+            <p>Users who have submitted KYC documents but are not yet verified.</p>
+            
+            <table class="admin-table" id="kyc-queue-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Documents</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="kyc-queue-body">
+                    <tr>
+                        <td colspan="5" class="empty-state-small" style="text-align: center;">Loading...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>All Loan Requests</h2>
+            <p>Comprehensive list of all loans in the system.</p>
+
+            <table class="admin-table" id="all-loans-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Amount (₹)</th>
+                        <th>Rate (%)</th>
+                        <th>Borrower</th>
+                        <th>Lender</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="all-loans-body">
+                    </tbody>
+            </table>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Loan Marketplace Admin</p>
+    </footer>
+    <script src="api.js" type="module"></script>
+    <script src="admin.js" type="module"></script>
+</body>
+</html>

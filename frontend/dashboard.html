@@ -9,45 +9,72 @@
 <body>
 
     <header>
-        <div class="logo"><a href="/">LOAN EASY</a></div>
+        <div class="logo"><a href="index.html">LoanMarketplace</a></div>
         <nav class="main-nav">
-            <a href="/">Home</a>
-            <a href="/dashboard.html">Dashboard</a>
-            <a href="/logout.html" id="logout-button">Logout</a>
+            <a href="index.html">Home</a>
+            <a href="create_loan.html" id="create-loan-link">Create Loan Request</a>
+            <a href="profile.html">Profile</a>
+            <a href="/logout" data-auth-link="logout">Logout</a>
         </nav>
     </header>
 
-    <main class="container" data-user-role="borrower"> <h1>Welcome, <span id="user-name">Loading...</span></h1>
-        <p class="balance">Account Balance: **₹ <span id="user-balance">0.00</span>**</p>
+    <main class="container">
+        
+        <div id="flash-message" class="hidden flash-message">
+            <p data-target="flash-text">Message placeholder</p>
+        </div>
 
-        <section id="borrower-dashboard" class="dashboard-section">
-            <h2>Your Active Loans (Borrowed)</h2>
-            <div id="loans-borrowed-list">
-                <p class="loan-summary" data-loan-id="a1b2c3d4e5f6">
-                    **₹<span data-borrowed-amount>20,000</span>** borrowed &mdash; Remaining **₹<span data-borrowed-remaining>15,500</span>**
-                </p>
-                <p id="no-borrowed-loans" class="empty-state-small hidden">You currently have no outstanding loans.</p>
-            </div>
-            <a href="/create_loan" class="button-link">Create New Loan Request</a>
+        <h1>My Dashboard</h1>
+
+        <section>
+            <h2>My Borrowed Loans</h2>
+            <p>Loan requests you have created.</p>
+            
+            <table class="loan-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Amount (₹)</th>
+                        <th>Rate (%)</th>
+                        <th>Term (mo)</th>
+                        <th>Status</th>
+                        <th>Matched Lender</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="loans-borrowed-body">
+                    <tr><td colspan="7" class="empty-state-small">Loading...</td></tr>
+                </tbody>
+            </table>
         </section>
 
-
-        <section id="lender-dashboard" class="dashboard-section hidden"> 
-            <h2>Your Funded Loans (Lent)</h2>
-            <div id="loans-lent-list">
-                <p class="loan-summary" data-investment-id="i1j2k3l4m5n6">
-                    **₹<span data-lent-amount>5,000</span>** lent to Loan #<span data-lent-loan-id>G1H2I3</span> &mdash; Expected Return: **₹<span data-expected-return>5,600</span>**
-                </p>
-                <p id="no-lent-loans" class="empty-state-small hidden">You haven't funded any loans yet.</p>
-            </div>
-            <a href="/" class="button-link secondary-button">Browse Loan Requests</a>
+        <section id="lender-dashboard-section">
+            <h2>My Lent Loans</h2>
+            <p>Loans you have funded or expressed interest in.</p>
+            
+            <table class="loan-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Amount (₹)</th>
+                        <th>Rate (%)</th>
+                        <th>Borrower</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="loans-lent-body">
+                    <tr><td colspan="6" class="empty-state-small">Loading...</td></tr>
+                </tbody>
+            </table>
         </section>
 
     </main>
 
     <footer>
-        <p>&copy; 2025 Loan Marketplace</p>
+        <p>&copy; 2025 Loan Marketplace Dashboard</p>
     </footer>
-    <script src="dashboard.js"></script>
+    <script src="api.js" type="module"></script>
+    <script src="dashboard.js" type="module"></script>
 </body>
 </html>

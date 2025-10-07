@@ -9,42 +9,38 @@
 <body>
 
     <header>
-        <div class="logo"><a href="index.html">LOAN EASY</a></div>
+        <div class="logo"><a href="index.html">LoanMarketplace</a></div>
         <nav class="main-nav">
             <a href="index.html">Home</a>
-            <a href="register.html">Register</a>
         </nav>
     </header>
 
     <main class="container">
         
-        <div id="flash-message" class="hidden flash-message success">
-            <p data-target="flash-text">Registration successful. Please log in.</p>
+        <div id="flash-message" class="hidden flash-message">
+            <p data-target="flash-text">Message placeholder</p>
         </div>
-        
-        <section class="auth-forms single-form">
-            
-            <div class="form-card">
-                <h1>Log In to Your Account</h1>
-                <form id="login-form" action="/login" method="post">
-                    <label for="login-email">Email</label>
-                    <input type="email" id="login-email" name="email" required>
-                    
-                    <label for="login-password">Password</label>
-                    <input type="password" id="login-password" name="password" required>
-                    
-                    <button type="submit" data-action="login">Login</button>
-                </form>
-                <p class="auth-switch">Don't have an account? <a href="register.html">Register here</a>.</p>
-            </div>
-            
-        </section>
+
+        <div class="form-card">
+            <h2>Login to Your Account</h2>
+            <form id="login-form">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+
+                <button type="submit" class="button-primary">Login</button>
+            </form>
+            <p class="small-text">Don't have an account? <a href="register.html">Register here.</a></p>
+        </div>
 
     </main>
 
     <footer>
         <p>&copy; 2025 Loan Marketplace</p>
     </footer>
-    <script src="auth.js"></script>
+    <script src="api.js" type="module"></script>
+    <script src="auth.js" type="module"></script>
 </body>
 </html>
