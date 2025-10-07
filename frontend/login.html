@@ -1,9 +1,50 @@
-{% extends 'base.html' %}
-{% block content %}
-<h2>Login</h2>
-<form method="post">
-  <label>Email</label><input type="email" name="email">
-  <label>Password</label><input type="password" name="password">
-  <button type="submit">Login</button>
-</form>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Marketplace - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo"><a href="index.html">LoanMarketplace</a></div>
+        <nav class="main-nav">
+            <a href="index.html">Home</a>
+            <a href="register.html">Register</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        
+        <div id="flash-message" class="hidden flash-message success">
+            <p data-target="flash-text">Registration successful. Please log in.</p>
+        </div>
+        
+        <section class="auth-forms single-form">
+            
+            <div class="form-card">
+                <h1>Log In to Your Account</h1>
+                <form id="login-form" action="/login" method="post">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" name="email" required>
+                    
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" required>
+                    
+                    <button type="submit" data-action="login">Login</button>
+                </form>
+                <p class="auth-switch">Don't have an account? <a href="register.html">Register here</a>.</p>
+            </div>
+            
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Loan Marketplace</p>
+    </footer>
+    <script src="auth.js"></script>
+</body>
+</html>

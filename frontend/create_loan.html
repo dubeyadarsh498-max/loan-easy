@@ -1,11 +1,54 @@
-{% extends 'base.html' %}
-{% block content %}
-<h2>Create Loan Request</h2>
-<form method="post">
-  <label>Amount</label><input type="number" name="amount" required>
-  <label>Interest Rate (%)</label><input type="number" step="0.01" name="interest_rate" required>
-  <label>Term (Months)</label><input type="number" name="term_months" required>
-  <label>Purpose</label><input name="purpose">
-  <button type="submit">Create Loan</button>
-</form>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Marketplace - Create Request</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo"><a href="/">LoanMarketplace</a></div>
+        <nav class="main-nav">
+            <a href="/">Home</a>
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/logout.html">Logout</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        
+        <div id="flash-message" class="hidden flash-message error">
+            <p data-target="flash-text">Error: Minimum loan amount is ₹1000.</p>
+        </div>
+
+        <h1>Create New Loan Request</h1>
+        <p>Fill out the form below to submit your loan request to the marketplace.</p>
+        
+        <div class="form-card large-form">
+            <form id="create-loan-form" action="/create_loan" method="post">
+                <label for="amount">Amount (₹)</label>
+                <input type="number" id="amount" name="amount" required min="1000" placeholder="Minimum ₹1000">
+
+                <label for="interest_rate">Interest Rate (Annual %)</label>
+                <input type="number" id="interest_rate" step="0.01" name="interest_rate" required min="0.01" max="50" placeholder="e.g., 10.50">
+
+                <label for="term_months">Term (Months)</label>
+                <input type="number" id="term_months" name="term_months" required min="3" max="60" placeholder="3 to 60 months">
+
+                <label for="purpose">Purpose (Optional)</label>
+                <input type="text" id="purpose" name="purpose" placeholder="e.g., Debt Consolidation, Home Repair">
+                
+                <button type="submit" data-action="submit-loan">Submit Loan Request</button>
+            </form>
+        </div>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Loan Marketplace</p>
+    </footer>
+    <script src="create_loan.js"></script>
+</body>
+</html>

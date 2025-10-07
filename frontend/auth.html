@@ -3,29 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Marketplace - Register</title>
+    <title>Loan Marketplace - Authentication</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header>
-        <div class="logo"><a href="index.html">LoanMarketplace</a></div>
+        <div class="logo"><a href="/">LoanMarketplace</a></div>
         <nav class="main-nav">
-            <a href="index.html">Home</a>
-            <a href="login.html">Login</a>
+            <a href="/">Home</a>
         </nav>
     </header>
 
     <main class="container">
         
         <div id="flash-message" class="hidden flash-message success">
-            <p data-target="flash-text">Please complete your details to join.</p>
+            <p data-target="flash-text">Registration successful. Please log in.</p>
         </div>
         
-        <section class="auth-forms single-form">
+        <h1>Join the Marketplace</h1>
+
+        <section class="auth-forms">
             
             <div class="form-card">
-                <h1>Create a New Account</h1>
+                <h2>Login</h2>
+                <form id="login-form" action="/login" method="post">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" name="email" required>
+                    
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" required>
+                    
+                    <button type="submit" data-action="login">Login</button>
+                </form>
+            </div>
+            
+            <div class="form-card">
+                <h2>Register</h2>
                 <form id="register-form" action="/register" method="post">
                     <label for="register-name">Name</label>
                     <input type="text" id="register-name" name="name" required>
@@ -38,14 +52,12 @@
                     
                     <div class="checkbox-group">
                         <input type="checkbox" id="is-lender" name="is_lender">
-                        <label for="is-lender">Register as **Lender** (I want to fund loans)</label>
+                        <label for="is-lender">Register as **Lender**</label>
                     </div>
 
                     <button type="submit" data-action="register">Register</button>
                 </form>
-                <p class="auth-switch">Already have an account? <a href="login.html">Log in here</a>.</p>
             </div>
-            
         </section>
 
     </main>

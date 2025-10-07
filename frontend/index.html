@@ -1,27 +1,62 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <title>Loan Marketplace</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Marketplace - Home</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <nav>
-    <a href="/">Home</a>
-    {% if session.get('user_id') %}
-      <a href="/dashboard">Dashboard</a>
-      <a href="/logout">Logout</a>
-    {% else %}
-      <a href="/login">Login</a>
-      <a href="/register">Register</a>
-    {% endif %}
-  </nav>
-  <div class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for cat, msg in messages %}
-        <p class="flash {{cat}}">{{msg}}</p>
-      {% endfor %}
-    {% endwith %}
-    {% block content %}{% endblock %}
-  </div>
+
+    <header>
+        <div class="logo"><a href="/">LoanMarketplace</a></div>
+        <nav class="main-nav">
+            <a href="/">Home</a>
+            <div id="auth-links">
+                <a href="./dashboard.html" class="hidden" data-auth-link="dashboard">Dashboard</a>
+                <a href="./logout.html" class="hidden" data-auth-link="logout">Logout</a>
+                <a href="./login.html" data-auth-link="login">Login / Register</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        
+        <div id="flash-message" class="hidden flash-message success">
+            <p data-target="flash-text">Welcome back!</p>
+        </div>
+
+        <h1>Available Loan Requests</h1>
+        <p>Browse available loan opportunities and fund requests that match your criteria.</p>
+
+        <section id="loan-list" class="loan-list">
+            
+            <article class="loan-item" 
+                     data-loan-id="65f4d8e5c3e7b9a1f2d4c0b3" 
+                     data-amount="50000" 
+                     data-remaining="35000"
+                     data-interest-rate="10.5"
+                     data-term-months="24">
+                
+                <h3>Loan #<span data-loan-field="short-id">D4C0B3</span></h3>
+                <p><strong>Amount:</strong> ₹<span data-loan-field="amount">50,000</span></p>
+                <p><strong>Remaining:</strong> ₹<span data-loan-field="remaining">35,000</span></p>
+                <p><strong>Rate/Term:</strong> <span data-loan-field="interest">10.5</span>% for <span data-loan-field="term">24</span> months</p>
+
+                <form action="/fund/loan-id-placeholder" method="post" class="fund-form" data-form-role="lender">
+                    <label for="fund-amount-D4C0B3">Fund Amount:</label>
+                    <input type="number" id="fund-amount-D4C0B3" name="amount" step="0.01" required min="0.01" placeholder="e.g., 1000">
+                    <button type="submit">Fund Loan</button>
+                </form>
+            </article>
+            <p id="no-loans-message" class="empty-state hidden">No new loan requests are currently available.</p>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Loan Marketplace</p>
+    </footer>
+    <script src="index.js"></script>
 </body>
 </html>

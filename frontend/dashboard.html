@@ -1,27 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Marketplace - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-{% extends 'base.html' %}
-{% block content %}
-<h2>Welcome {{ session['name'] }}</h2>
-<p>Balance: ₹{{ user.balance }}</p>
+    <header>
+        <div class="logo"><a href="/">LoanMarketplace</a></div>
+        <nav class="main-nav">
+            <a href="/">Home</a>
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/logout.html" id="logout-button">Logout</a>
+        </nav>
+    </header>
 
-{% if user.is_lender %}
-  <h3>Loans to Fund</h3>
-  {% for loan in loans %}
-    <form action="/fund/{{loan._id}}" method="post">
-      ₹{{loan.amount}} — Remaining ₹{{loan.remaining}} 
-      <input type="number" name="amount" step="0.01" required>
-      <button type="submit">Fund</button>
-    </form>
-  {% else %}
-    <p>No available loans</p>
-  {% endfor %}
-{% else %}
-  <a href="/create_loan">Create Loan Request</a>
-  <h3>Your Loans</h3>
-  {% for loan in loans %}
-    <p>₹{{loan.amount}} — Remaining ₹{{loan.remaining}}</p>
-  {% else %}
-    <p>No loans</p>
-  {% endfor %}
-{% endif %}
-{% endblock %}
+    <main class="container" data-user-role="borrower"> <h1>Welcome, <span id="user-name">Loading...</span></h1>
+        <p class="balance">Account Balance: **₹ <span id="user-balance">0.00</span>**</p>
+
+        <section id="borrower-dashboard" class="dashboard-section">
+            <h2>Your Active Loans (Borrowed)</h2>
+            <div id="loans-borrowed-list">
+                <p class="loan-summary" data-loan-id="a1b2c3d4e5f6">
+                    **₹<span data-borrowed-amount>20,000</span>** borrowed &mdash; Remaining **₹<span data-borrowed-remaining>15,500</span>**
+                </p>
+                <p id="no-borrowed-loans" class="empty-state-small hidden">You currently have no outstanding loans.</p>
+            </div>
+            <a href="/create_loan" class="button-link">Create New Loan Request</a>
+        </section>
+
+
+        <section id="lender-dashboard" class="dashboard-section hidden"> 
+            <h2>Your Funded Loans (Lent)</h2>
+            <div id="loans-lent-list">
+                <p class="loan-summary" data-investment-id="i1j2k3l4m5n6">
+                    **₹<span data-lent-amount>5,000</span>** lent to Loan #<span data-lent-loan-id>G1H2I3</span> &mdash; Expected Return: **₹<span data-expected-return>5,600</span>**
+                </p>
+                <p id="no-lent-loans" class="empty-state-small hidden">You haven't funded any loans yet.</p>
+            </div>
+            <a href="/" class="button-link secondary-button">Browse Loan Requests</a>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Loan Marketplace</p>
+    </footer>
+    <script src="dashboard.js"></script>
+</body>
+</html>
