@@ -3,42 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Marketplace - Register</title>
+    <title>Register - P2P Finance</title>
     <link rel="stylesheet" href="style.css">
-    <style>
-        .lender-fields, .kyc-fields {
-            border: 1px solid var(--color-border);
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: var(--border-radius-sm);
-        }
-        .kyc-fields h4 {
-            margin-top: 0;
-            color: var(--color-text-secondary);
-        }
-    </style>
+    <script type="module" src="auth.js" defer></script>
 </head>
 <body>
-
     <header>
-        <div class="logo"><a href="index.html">LoanMarketplace</a></div>
-        <nav class="main-nav">
-            <a href="index.html">Home</a>
-            <a href="login.html">Login</a>
-        </nav>
+        <div class="container">
+            <div class="logo"><a href="index.html">P2P Finance</a></div>
+            <nav id="auth-links">
+                <a href="login.html" data-auth-link="login">Login</a>
+                <a href="register.html" data-auth-link="register">Register</a>
+                </nav>
+        </div>
     </header>
 
-    <main class="container">
-        
-        <div id="flash-message" class="hidden flash-message">
-            <p data-target="flash-text">Message placeholder</p>
-        </div>
+    <main class="container" style="max-width: 600px;">
+        <div id="flash-container"></div>
 
-        <div class="form-card">
-            <h2>Create Account</h2>
-            
+        <div class="card">
+            <h1 class="section-title">Create Account</h1>
             <form id="register-form" enctype="multipart/form-data">
-                <label for="name">Name</label>
+                
+                <label for="name">Full Name</label>
                 <input type="text" id="name" name="name" required>
 
                 <label for="email">Email</label>
@@ -49,44 +36,34 @@
 
                 <label for="role">Account Type</label>
                 <select id="role" name="role" required>
-                    <option value="borrower">Borrower (Needs a Loan)</option>
-                    <option value="lender">Lender (Offers Funds)</option>
+                    <option value="borrower">Borrower</option>
+                    <option value="lender">Lender</option>
                 </select>
 
-                <div id="lender-fields" class="lender-fields hidden">
-                    <h3>Lender Preferences</h3>
-                    <label for="maxAmount">Max Loan Amount to Fund (₹)</label>
+                <div id="lender-fields" class="hidden">
+                    <h2 style="margin-top: 1.5rem; border-top: 1px solid var(--color-border); padding-top: 1rem;">Lender Profile</h2>
+                    
+                    <label for="maxAmount">Max Amount to Lend</label>
                     <input type="number" id="maxAmount" name="maxAmount" min="1000" placeholder="e.g., 50000">
-
-                    <label for="interestRate">Interest Rate Preference (%)</label>
-                    <input type="number" id="interestRate" step="0.01" name="interestRate" min="0.01" placeholder="e.g., 5.0">
+                    
+                    <label for="interestRate">Max Interest Rate Accepted (%)</label>
+                    <input type="number" id="interestRate" name="interestRate" step="0.1" min="1" max="50" placeholder="e.g., 12.5">
                 </div>
 
-                <div class="kyc-fields">
-                    <h4>KYC Documents (Required for Verification)</h4>
-                    <p class="small-text">Upload clear scans/photos of your documents. File type must be an image (jpg, png) or PDF.</p>
+                <h2 style="margin-top: 1.5rem; border-top: 1px solid var(--color-border); padding-top: 1rem;">KYC Documents (Required)</h2>
+                
+                <label for="pan">PAN Card (PDF/Image)</label>
+                <input type="file" id="pan" name="pan" accept=".pdf,image/*" required>
 
-                    <label for="pan">PAN Card</label>
-                    <input type="file" id="pan" name="pan" accept=".jpg, .jpeg, .png, .pdf" required>
+                <label for="aadhaar">Aadhaar Card (PDF/Image)</label>
+                <input type="file" id="aadhaar" name="aadhaar" accept=".pdf,image/*" required>
+                
+                <label for="idProof">Additional ID Proof (e.g., Driving License)</label>
+                <input type="file" id="idProof" name="idProof" accept=".pdf,image/*" required>
 
-                    <label for="aadhaar">Aadhaar Card</label>
-                    <input type="file" id="aadhaar" name="aadhaar" accept=".jpg, .jpeg, .png, .pdf" required>
-
-                    <label for="idProof">Other ID Proof (e.g., Passport/Driving License)</label>
-                    <input type="file" id="idProof" name="idProof" accept=".jpg, .jpeg, .png, .pdf" required>
-                </div>
-
-                <button type="submit" class="button-primary">Register</button>
+                <button type="submit" style="margin-top: 1rem;">Register and Submit KYC</button>
             </form>
-            <p class="small-text">Already have an account? <a href="login.html">Login here.</a></p>
         </div>
-
     </main>
-
-    <footer>
-        <p>&copy; 2025 Loan Marketplace</p>
-    </footer>
-    <script src="api.js" type="module"></script>
-    <script src="auth.js" type="module"></script>
 </body>
 </html>

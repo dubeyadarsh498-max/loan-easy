@@ -1,133 +1,99 @@
 // index.js
-import { fetchData, getToken, removeToken } from './api.js';
-import { showFlash } from './auth.js'; 
+import { fetchData } from './api.js';
+import { showFlash } from './auth.js';
 
-const loanListContainer = document.getElementById('loan-list');
+const loanList = document.getElementById('loan-list');
 const noLoansMessage = document.getElementById('no-loans-message');
-const authLinksContainer = document.getElementById('auth-links');
-const userRole = localStorage.getItem('userRole'); 
+const userId = localStorage.getItem('userId');
 
-// --- UI Management ---
+const getStatusBadge = (status) => {
+    let className = 'status-badge';
+    if (status === 'open') className += ' status-open';
+    else if (status === 'matched') className += ' status-matched';
+    else if (status === 'accepted') className += ' status-accepted';
+    else className += ' status-rejected';
+    
+    return `<span class="${className}">${status.toUpperCase().replace('_', ' ')}</span>`;
+}
 
-const updateHeaderLinks = () => {
-    const isLoggedIn = !!getToken();
-    const userRole = localStorage.getItem('userRole');
+const renderLoanItem = (loan) => {
+    // Note: The backend should filter for verified KYC, but this is a final frontend check
+    if (!loan.borrower.kyc.verified) {
+        return ''; 
+    }
+    
+    return `
+        <div class="card loan-item">
+            <h3>Loan Request #${loan._id.substring(0, 8)}</h3>
+            <p><strong>Amount:</strong> ₹${loan.amount.toLocaleString()}</p>
+            <p><strong>Max Interest Rate:</strong> ${loan.interestRate}%</p>
+            <p><strong>Period:</strong> ${loan.periodMonths} months</p>
+            <p><strong>Status:</strong> ${getStatusBadge(loan.status)}</p>
 
-    // Hide all links first
-    authLinksContainer.querySelectorAll('[data-auth-link]').forEach(a => a.classList.add('hidden'));
+            <form class="fund-form" data-loan-id="${loan._id}">
+                <button type="submit" class="btn-success">Fund/Match Loan</button>
+            </form>
+        </div>
+    `;
+};
 
-    if (isLoggedIn) {
-        document.querySelector('[data-auth-link="dashboard"]').classList.remove('hidden');
-        document.querySelector('[data-auth-link="profile"]').classList.remove('hidden');
-        document.querySelector('[data-auth-link="logout"]').classList.remove('hidden');
-        
-        if (userRole === 'admin') {
-            document.querySelector('[data-auth-link="admin"]').classList.remove('hidden');
-        }
+const handleFund = async (e) => {
+    e.preventDefault();
+    const loanId = e.target.closest('.fund-form').getAttribute('data-loan-id');
+
+    if (!confirm('Are you sure you want to match/fund this loan? This marks the loan as matched.')) {
+        return;
+    }
+
+    const result = await fetchData(`/loans/${loanId}/interest`, {
+        method: 'POST',
+        body: JSON.stringify({})
+    });
+
+    if (result.success) {
+        showFlash('Loan matched successfully! Borrower will be notified for final acceptance.', 'success');
+        fetchOpenLoans(); // Refresh the list
     } else {
-        document.querySelector('[data-auth-link="login"]').classList.remove('hidden');
-        document.querySelector('[data-auth-link="register"]').classList.remove('hidden');
+        showFlash(result.msg || 'Failed to match loan. Check if you are a verified lender.', 'error');
     }
 };
 
-
-const createLoanCard = (loan) => {
-    const isLender = userRole === 'lender';
-
-    const card = document.createElement('article');
-    card.className = 'loan-item';
-    card.setAttribute('data-loan-id', loan._id);
-    card.setAttribute('data-amount', loan.amount);
-    card.setAttribute('data-remaining', loan.amount); 
-    card.setAttribute('data-interest-rate', loan.interestRate);
-    card.setAttribute('data-term-months', loan.periodMonths);
-
-    const shortId = loan._id.slice(-6).toUpperCase();
-
-    card.innerHTML = `
-        <h3>Loan #${shortId}</h3>
-        <p><strong>Amount:</strong> ₹<span data-loan-field="amount">${loan.amount.toLocaleString()}</span></p>
-        <p><strong>Remaining:</strong> ₹<span data-loan-field="remaining">${loan.amount.toLocaleString()}</span></p>
-        <p><strong>Rate/Term:</strong> <span data-loan-field="interest">${loan.interestRate}</span>% for <span data-loan-field="term">${loan.periodMonths}</span> months</p>
-        <p><strong>Borrower:</strong> ${loan.borrower.name}</p>
-
-        <form action="/api/loans/${loan._id}/interest" method="post" class="fund-form" data-form-role="lender" ${isLender ? '' : 'style="display:none;"'}>
-            <label for="fund-amount-${shortId}">Fund Amount:</label>
-            <input type="number" id="fund-amount-${shortId}" name="amount" step="0.01" required min="0.01" max="${loan.amount}" placeholder="e.g., 1000">
-            <button type="submit" data-loan-id="${loan._id}">Fund</button>
-        </form>
-    `;
-
-    return card;
-};
-
-// --- Data Fetching and Initialization ---
-
-const fetchAndDisplayLoans = async () => {
-    if (!getToken()) {
-        loanListContainer.innerHTML = `<p class="empty-state">Please login to view open loan requests.</p>`;
-        noLoansMessage.classList.add('hidden');
+const fetchOpenLoans = async () => {
+    const role = localStorage.getItem('userRole');
+    
+    // Only proceed if the user is a lender
+    if (role !== 'lender') {
+        noLoansMessage.classList.remove('hidden');
         return;
     }
     
-    if (userRole !== 'lender') {
-        loanListContainer.innerHTML = `<p class="empty-state">Only lenders can view open loan requests for funding.</p>`;
-        noLoansMessage.classList.add('hidden');
-        return;
-    }
+    const result = await fetchData('/loans/open', { method: 'GET' });
 
-    const result = await fetchData('/loans/open');
+    if (result.success) {
+        const loans = result.json || [];
+        
+        // Filter out loans created by the current user (you can't lend to yourself)
+        const filteredLoans = loans.filter(loan => 
+            loan.borrower._id !== userId // userId comes from local storage
+        );
+        
+        if (filteredLoans.length === 0) {
+            noLoansMessage.classList.remove('hidden');
+            loanList.innerHTML = '';
+        } else {
+            noLoansMessage.classList.add('hidden');
+            loanList.innerHTML = filteredLoans.map(renderLoanItem).join('');
 
-    loanListContainer.innerHTML = ''; 
-
-    if (result.success && result.data.length > 0) {
-        result.data.forEach(loan => {
-            loanListContainer.appendChild(createLoanCard(loan));
-        });
-        noLoansMessage.classList.add('hidden');
-        setupFundingListeners();
-    } else {
-        noLoansMessage.classList.remove('hidden');
-    }
-};
-
-// --- Event Listeners ---
-
-const setupFundingListeners = () => {
-    loanListContainer.querySelectorAll('.fund-form').forEach(form => {
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const loanId = e.target.querySelector('button').getAttribute('data-loan-id');
-            
-            const result = await fetchData(`/loans/${loanId}/interest`, {
-                method: 'POST',
-                body: JSON.stringify({})
+            document.querySelectorAll('.fund-form').forEach(form => {
+                form.addEventListener('submit', handleFund);
             });
+        }
 
-            if (result.success) {
-                showFlash('Interest expressed! Waiting for borrower acceptance.', 'success');
-                fetchAndDisplayLoans(); 
-            } else {
-                showFlash(result.msg || 'Failed to express interest.', 'error');
-            }
-        });
-    });
+    } else {
+        showFlash(result.msg || 'Failed to fetch loan requests.', 'error');
+    }
 };
 
-const setupLogout = () => {
-    document.querySelector('[data-auth-link="logout"]').addEventListener('click', (e) => {
-        e.preventDefault();
-        // IMPORTANT: Use the exported utility
-        removeToken(); 
-        window.location.href = 'index.html';
-    });
-};
-
-
-// --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
-    updateHeaderLinks();
-    fetchAndDisplayLoans();
-    setupLogout(); 
+    fetchOpenLoans();
 });

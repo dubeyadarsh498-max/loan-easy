@@ -1,41 +1,74 @@
 // create_loan.js
-import { fetchData, getToken, removeToken } from './api.js';
-import { showFlash } from './auth.js'; 
+import { fetchData } from './api.js';
+import { showFlash } from './auth.js';
 
-const createLoanForm = document.getElementById('create-loan-form');
-const userRole = localStorage.getItem('userRole');
+const loanForm = document.getElementById('create-loan-form');
+const kycWarning = document.getElementById('kyc-warning');
 
-// Redirect if not borrower or not logged in
-if (!getToken() || userRole !== 'borrower') {
-    showFlash('Access Denied: Only logged-in borrowers can create loan requests.', 'error');
-    setTimeout(() => {
-        window.location.href = 'index.html';
-    }, 1500);
-}
+const checkKYCStatus = async () => {
+    const result = await fetchData('/user/profile');
+    
+    if (result.success && result.kyc) {
+        const isVerified = result.kyc.verified;
+        
+        if (!isVerified) {
+            kycWarning.classList.remove('hidden');
+            loanForm.querySelector('button[type="submit"]').disabled = true;
+        } else {
+            kycWarning.classList.add('hidden');
+            loanForm.querySelector('button[type="submit"]').disabled = false;
+        }
+    } else {
+        showFlash(result.msg || 'Error checking KYC status. Cannot submit loan.', 'error');
+        loanForm.querySelector('button[type="submit"]').disabled = true;
+    }
+};
 
 
-// --- Form Submission Handler ---
-createLoanForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+const handleCreateLoan = async (event) => {
+    event.preventDefault();
 
-    const amount = document.getElementById('loan-amount').value;
-    const interestRate = document.getElementById('loan-interest').value;
-    const periodMonths = document.getElementById('loan-period').value;
+    const form = event.target;
+    const formData = new FormData(form);
+    
+    // Convert FormData to JSON object
+    const data = Object.fromEntries(formData.entries());
+    
+    // Ensure numbers are sent as numbers
+    data.amount = Number(data.amount);
+    data.interestRate = Number(data.interestRate);
+    data.periodMonths = Number(data.periodMonths);
 
     const result = await fetchData('/loans/create', {
         method: 'POST',
-        body: JSON.stringify({ amount, interestRate, periodMonths })
+        body: JSON.stringify(data)
     });
 
     if (result.success) {
-        const matchedMessage = result.data.matched 
-            ? `Successfully matched with Lender ${result.data.matched.name}! Check dashboard to accept.`
-            : `Loan request created! Status is 'open'. We will notify you when a lender expresses interest.`;
-        
-        showFlash(matchedMessage, 'success'); 
-        createLoanForm.reset();
-        
+        let msg = `Loan request submitted successfully. Status: ${result.loan.status}.`;
+        if (result.matched) {
+            msg += ` Automatically matched with a lender!`;
+        }
+        showFlash(msg, 'success');
+        form.reset();
+        // Optional: Redirect to dashboard after a short delay
+        setTimeout(() => {
+            window.location.href = 'dashboard.html';
+        }, 1500);
     } else {
-        showFlash(result.msg || 'Failed to create loan request. Check KYC status.', 'error'); 
+        showFlash(result.msg || 'Failed to create loan request.', 'error');
     }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Redirect non-borrowers
+    if (localStorage.getItem('userRole') !== 'borrower') {
+        showFlash('Only Borrowers can request a loan.', 'error');
+        // You might want to redirect them completely
+        setTimeout(() => window.location.href = 'dashboard.html', 1500);
+        return;
+    }
+    
+    checkKYCStatus();
+    loanForm.addEventListener('submit', handleCreateLoan);
 });

@@ -3,59 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Marketplace - Profile</title>
+    <title>Profile - P2P Finance</title>
     <link rel="stylesheet" href="style.css">
+    <script type="module" src="profile.js" defer></script>
 </head>
 <body>
-
     <header>
-        <div class="logo"><a href="index.html">LoanMarketplace</a></div>
-        <nav class="main-nav">
-            <a href="index.html">Home</a>
-            <a href="dashboard.html">Dashboard</a>
-            <a href="/logout" data-auth-link="logout">Logout</a>
-        </nav>
+        <div class="container">
+            <div class="logo"><a href="index.html">P2P Finance</a></div>
+            <nav id="auth-links">
+                </nav>
+        </div>
     </header>
 
-    <main class="container">
-        
-        <div id="flash-message" class="hidden flash-message">
-            <p data-target="flash-text">Message placeholder</p>
-        </div>
+    <main class="container" style="max-width: 600px;">
+        <div id="flash-container"></div>
 
-        <h1>User Profile & Settings</h1>
-        
-        <section class="profile-section">
-            <div class="form-card">
-                <h2>Account Information</h2>
-                <p><strong>Role:</strong> <span id="user-role-display"></span></p>
-                <p><strong>Email:</strong> <span id="user-email-display"></span></p>
-                <p><strong>KYC Status:</strong> <span id="kyc-status-display"></span></p>
+        <div class="card">
+            <h1 class="section-title">User Profile</h1>
+            <p style="margin-bottom: 1rem;">**Role:** <span id="user-role-display"></span></p>
 
-                <form id="profile-form">
-                    <label for="profile-name">Name</label>
-                    <input type="text" id="profile-name" name="name" required>
+            <form id="profile-form">
+                <h2>General Information</h2>
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="email">Email (Read-Only)</label>
+                <input type="email" id="email" name="email" disabled>
+                
+                <div id="lender-fields" class="hidden" style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--color-border);">
+                    <h2>Lender Settings</h2>
+                    <label for="maxAmount">Max Amount to Lend (₹)</label>
+                    <input type="number" id="maxAmount" name="maxAmount" min="0" placeholder="e.g., 50000">
                     
-                    <div id="lender-settings-container" class="hidden">
-                        <h3>Lender Settings</h3>
-                        <label for="maxAmount">Max Loan Amount to Fund (₹)</label>
-                        <input type="number" id="maxAmount" name="maxAmount" min="1000" placeholder="e.g., 50000">
+                    <label for="interestRate">Max Interest Rate Accepted (%)</label>
+                    <input type="number" id="interestRate" name="interestRate" step="0.1" min="1" max="50" placeholder="e.g., 12.5">
+                </div>
 
-                        <label for="interestRate">Interest Rate Preference (%)</label>
-                        <input type="number" id="interestRate" step="0.01" name="interestRate" min="0.01" placeholder="e.g., 5.0">
-                    </div>
-
-                    <button type="submit" class="button-primary">Save Profile</button>
-                </form>
-            </div>
-        </section>
-
+                <button type="submit" style="margin-top: 1.5rem;">Update Profile</button>
+            </form>
+        </div>
     </main>
-
-    <footer>
-        <p>&copy; 2025 Loan Marketplace</p>
-    </footer>
-    <script src="api.js" type="module"></script>
-    <script src="profile.js" type="module"></script>
 </body>
 </html>

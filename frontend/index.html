@@ -3,44 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>P2P Loan Marketplace</title>
+    <title>P2P Loan Marketplace - Home</title>
     <link rel="stylesheet" href="style.css">
+    <script type="module" src="auth.js" defer></script> 
+    <script type="module" src="index.js" defer></script>
 </head>
 <body>
-
     <header>
-        <div class="logo"><a href="index.html">LoanMarketplace</a></div>
-        <nav class="main-nav" id="auth-links">
-            <a href="index.html">Home</a>
-            <a href="dashboard.html" data-auth-link="dashboard" class="hidden">Dashboard</a>
-            <a href="profile.html" data-auth-link="profile" class="hidden">Profile</a>
-            <a href="admin.html" data-auth-link="admin" class="hidden">Admin Panel</a>
-            <a href="login.html" data-auth-link="login">Login</a>
-            <a href="register.html" data-auth-link="register">Register</a>
-            <a href="#" data-auth-link="logout" class="hidden">Logout</a>
-        </nav>
+        <div class="container">
+            <div class="logo"><a href="index.html">P2P Finance</a></div>
+            <nav id="auth-links">
+                <a href="login.html" data-auth-link="login" class="hidden">Login</a>
+                <a href="register.html" data-auth-link="register" class="hidden">Register</a>
+                <a href="dashboard.html" data-auth-link="dashboard" class="hidden">Dashboard</a>
+                <a href="profile.html" data-auth-link="profile" class="hidden">Profile</a>
+                <a href="admin.html" data-auth-link="admin" class="hidden">Admin Panel</a>
+                <a href="#" data-auth-link="logout" class="hidden">Logout</a>
+            </nav>
+        </div>
     </header>
 
     <main class="container">
+        <h1 class="section-title">Open Loan Requests</h1>
         
-        <div id="flash-message" class="hidden flash-message">
-            <p data-target="flash-text">Message placeholder</p>
-        </div>
-
-        <h1>Open Loan Requests</h1>
-        <p>Browse loan requests available for funding. Only verified lenders can fund these loans.</p>
-
-        <div id="loan-list">
-            </div>
-
-        <p id="no-loans-message" class="empty-state hidden">No open loan requests available at this time.</p>
-
+        <div id="flash-container"></div>
+        
+        <p id="no-loans-message" class="empty-state hidden">
+            No open loan requests are currently available. <br>
+            (Only KYC-verified borrowers' requests are shown to verified lenders.)
+        </p>
+        
+        <section id="loan-list" class="loan-grid"></section>
     </main>
-
+    
     <footer>
-        <p>&copy; 2025 P2P Loan Marketplace</p>
+        <div class="container">
+            <p>&copy; <span id="current-year"></span> P2P Finance Marketplace. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a> | 
+                <a href="#">Terms of Use</a> | 
+                <a href="mailto:support@p2pfinance.com">Contact Support</a>
+            </div>
+        </div>
     </footer>
-    <script src="api.js" type="module"></script>
-    <script src="index.js" type="module"></script>
 </body>
 </html>

@@ -3,78 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Marketplace - Dashboard</title>
+    <title>Dashboard - P2P Finance</title>
     <link rel="stylesheet" href="style.css">
+    <script type="module" src="dashboard.js" defer></script>
 </head>
 <body>
-
     <header>
-        <div class="logo"><a href="index.html">LoanMarketplace</a></div>
-        <nav class="main-nav">
-            <a href="index.html">Home</a>
-            <a href="create_loan.html" id="create-loan-link">Create Loan Request</a>
-            <a href="profile.html">Profile</a>
-            <a href="/logout" data-auth-link="logout">Logout</a>
-        </nav>
+        <div class="container">
+            <div class="logo"><a href="index.html">P2P Finance</a></div>
+            <nav id="auth-links">
+                </nav>
+        </div>
     </header>
 
     <main class="container">
+        <h1 class="section-title">My Dashboard</h1>
+
+        <div id="flash-container"></div>
         
-        <div id="flash-message" class="hidden flash-message">
-            <p data-target="flash-text">Message placeholder</p>
+        <div id="kyc-status" class="card" style="margin-bottom: 2rem;">
+            <h2>KYC Status: <span id="kyc-verification-status">Loading...</span></h2>
         </div>
 
-        <h1>My Dashboard</h1>
-
-        <section>
-            <h2>My Borrowed Loans</h2>
-            <p>Loan requests you have created.</p>
+        <section id="borrower-dashboard" class="dashboard-section hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>My Borrowed Loans</h2>
+                <a href="create_loan.html" class="button" style="text-decoration: none; padding: 0.5rem 1rem;">+ Request New Loan</a>
+            </div>
             
-            <table class="loan-table">
+            <table id="borrower-loans-table" class="loan-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Amount (₹)</th>
-                        <th>Rate (%)</th>
-                        <th>Term (mo)</th>
+                        <th>Loan ID</th>
+                        <th>Amount</th>
+                        <th>Rate/Term</th>
+                        <th>Lender</th>
                         <th>Status</th>
-                        <th>Matched Lender</th>
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="loans-borrowed-body">
-                    <tr><td colspan="7" class="empty-state-small">Loading...</td></tr>
-                </tbody>
+                <tbody>
+                    </tbody>
             </table>
+            <p id="no-borrower-loans" class="empty-state hidden" style="margin-top: 1rem;">No loan requests created yet.</p>
         </section>
 
-        <section id="lender-dashboard-section">
-            <h2>My Lent Loans</h2>
-            <p>Loans you have funded or expressed interest in.</p>
-            
-            <table class="loan-table">
+        <section id="lender-dashboard" class="dashboard-section hidden">
+            <h2>My Lent Loans (Matched/Accepted)</h2>
+            <table id="lender-loans-table" class="loan-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Amount (₹)</th>
-                        <th>Rate (%)</th>
+                        <th>Loan ID</th>
+                        <th>Amount</th>
+                        <th>Rate/Term</th>
                         <th>Borrower</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="loans-lent-body">
-                    <tr><td colspan="6" class="empty-state-small">Loading...</td></tr>
-                </tbody>
+                <tbody>
+                    </tbody>
             </table>
+            <p id="no-lender-loans" class="empty-state hidden" style="margin-top: 1rem;">No loans matched or accepted yet.</p>
         </section>
-
     </main>
-
-    <footer>
-        <p>&copy; 2025 Loan Marketplace Dashboard</p>
-    </footer>
-    <script src="api.js" type="module"></script>
-    <script src="dashboard.js" type="module"></script>
 </body>
 </html>

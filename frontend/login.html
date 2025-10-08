@@ -3,26 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Marketplace - Login</title>
+    <title>Login - P2P Finance</title>
     <link rel="stylesheet" href="style.css">
+    <script type="module" src="auth.js" defer></script>
 </head>
 <body>
-
     <header>
-        <div class="logo"><a href="index.html">LOAN EASY</a></div>
-        <nav class="main-nav">
-            <a href="index.html">Home</a>
-        </nav>
+        <div class="container">
+            <div class="logo"><a href="index.html">LOAN EASY</a></div>
+            <nav id="auth-links">
+                <a href="login.html" data-auth-link="login">Login</a>
+                <a href="register.html" data-auth-link="register">Register</a>
+            </nav>
+        </div>
     </header>
 
-    <main class="container">
-        
-        <div id="flash-message" class="hidden flash-message">
-            <p data-target="flash-text">Message placeholder</p>
+    <main class="container" style="max-width: 450px;">
+        <div id="flash-container">
+            <div id="flash" class="flash-message hidden" data-type="success"></div>
+            <div id="flash-text"></div>
         </div>
 
-        <div class="form-card">
-            <h2>Login to Your Account</h2>
+        <div class="card">
+            <h1 class="section-title">Login</h1>
             <form id="login-form">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required>
@@ -30,17 +33,9 @@
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" required>
 
-                <button type="submit" class="button-primary">Login</button>
+                <button type="submit" style="margin-top: 1rem;">Login</button>
             </form>
-            <p class="small-text">Don't have an account? <a href="register.html">Register here.</a></p>
         </div>
-
     </main>
-
-    <footer>
-        <p>&copy; 2025 Loan Marketplace</p>
-    </footer>
-    <script src="api.js" type="module"></script>
-    <script src="auth.js" type="module"></script>
 </body>
 </html>

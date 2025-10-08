@@ -3,50 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Marketplace - Create Request</title>
+    <title>Request Loan - P2P Finance</title>
     <link rel="stylesheet" href="style.css">
+    <script type="module" src="create_loan.js" defer></script>
 </head>
 <body>
-
     <header>
-        <div class="logo"><a href="index.html">LoanMarketplace</a></div>
-        <nav class="main-nav">
-            <a href="index.html">Home</a>
-            <a href="dashboard.html">Dashboard</a>
-            <a href="/logout" data-auth-link="logout">Logout</a>
-        </nav>
+        <div class="container">
+            <div class="logo"><a href="index.html">P2P Finance</a></div>
+            <nav id="auth-links">
+                </nav>
+        </div>
     </header>
 
-    <main class="container">
+    <main class="container" style="max-width: 600px;">
+        <div id="flash-container"></div>
         
-        <div id="flash-message" class="hidden flash-message">
-            <p data-target="flash-text">Message placeholder</p>
-        </div>
+        <div class="card">
+            <h1 class="section-title">Create New Loan Request</h1>
+            <p id="kyc-warning" class="flash-error hidden" style="margin-bottom: 1.5rem;">
+                Your KYC is not yet verified. You must be verified to create a loan request.
+            </p>
 
-        <div class="form-card">
-            <h2>Create New Loan Request</h2>
             <form id="create-loan-form">
-                <p class="small-text">You must be a verified borrower to create a loan request.</p>
-                
-                <label for="loan-amount">Loan Amount (₹)</label>
-                <input type="number" id="loan-amount" name="amount" min="1000" step="100" required placeholder="e.g., 10000">
+                <label for="amount">Loan Amount (₹)</label>
+                <input type="number" id="amount" name="amount" min="1000" step="100" required placeholder="e.g., 50000">
 
-                <label for="loan-interest">Maximum Interest Rate (%)</label>
-                <input type="number" id="loan-interest" name="interestRate" step="0.01" min="0.01" max="50" required placeholder="e.g., 12.5">
+                <label for="interestRate">Interest Rate Offered (%)</label>
+                <input type="number" id="interestRate" name="interestRate" step="0.1" min="5" max="30" required placeholder="e.g., 10.5">
 
-                <label for="loan-period">Term (Months)</label>
-                <input type="number" id="loan-period" name="periodMonths" min="6" max="60" required placeholder="e.g., 24">
+                <label for="periodMonths">Repayment Period (Months)</label>
+                <select id="periodMonths" name="periodMonths" required>
+                    <option value="6">6 Months</option>
+                    <option value="12">12 Months</option>
+                    <option value="18">18 Months</option>
+                    <option value="24">24 Months</option>
+                    <option value="36">36 Months</option>
+                </select>
 
-                <button type="submit" class="button-primary">Submit Loan Request</button>
+                <button type="submit" style="margin-top: 1rem;">Submit Request</button>
             </form>
         </div>
-
     </main>
-
-    <footer>
-        <p>&copy; 2025 Loan Marketplace</p>
-    </footer>
-    <script src="api.js" type="module"></script>
-    <script src="create_loan.js" type="module"></script>
 </body>
 </html>

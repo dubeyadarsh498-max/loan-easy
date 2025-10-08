@@ -1,124 +1,152 @@
 // dashboard.js
-import { fetchData, getToken, removeToken } from './api.js';
-import { showFlash } from './auth.js'; 
-
-const loansBorrowedBody = document.getElementById('loans-borrowed-body');
-const loansLentBody = document.getElementById('loans-lent-body');
+import { fetchData } from './api.js';
+import { showFlash } from './auth.js';
 
 const userId = localStorage.getItem('userId');
 const userRole = localStorage.getItem('userRole');
+const kycStatusDisplay = document.getElementById('kyc-verification-status');
+const borrowerSection = document.getElementById('borrower-dashboard');
+const lenderSection = document.getElementById('lender-dashboard');
+const borrowerTableBody = document.querySelector('#borrower-loans-table tbody');
+const lenderTableBody = document.querySelector('#lender-loans-table tbody');
+const noBorrowerLoans = document.getElementById('no-borrower-loans');
+const noLenderLoans = document.getElementById('no-lender-loans');
 
-// Redirect if not logged in
-if (!getToken() || !userId) {
+if (!userId || !userRole) {
     window.location.href = 'login.html';
 }
 
-// --- Data Handlers ---
+const getStatusBadge = (status) => {
+    let className = 'status-badge';
+    if (status === 'open') className += ' status-open';
+    else if (status === 'matched') className += ' status-matched';
+    else if (status === 'accepted') className += ' status-accepted';
+    else className += ' status-rejected';
+    
+    return `<span class="${className}">${status.toUpperCase().replace('_', ' ')}</span>`;
+}
 
 const handleResponse = async (loanId, action) => {
     const result = await fetchData(`/loans/${loanId}/respond`, {
         method: 'POST',
-        body: JSON.stringify({ action })
+        body: JSON.stringify({ action: action })
     });
 
     if (result.success) {
-        showFlash(`Loan response saved. Status: ${action}.`, 'success'); 
-        fetchDashboardData();
+        showFlash(`Loan request ${action}ed successfully.`, 'success');
+        fetchUserLoans(); // Refresh dashboard data
     } else {
-        showFlash(result.msg || 'Failed to respond to loan request.', 'error'); 
+        showFlash(result.msg || 'Failed to update loan status.', 'error');
     }
 };
 
-const createBorrowerRow = (loan) => {
-    const tr = document.createElement('tr');
-    const shortId = loan._id.slice(-6).toUpperCase();
-    const isMatched = loan.status === 'matched';
-    const isAccepted = loan.status === 'accepted';
+// --- Borrower Loan Rendering ---
+const renderBorrowerLoan = (loan) => {
+    let actions = '';
     
-    tr.innerHTML = `
-        <td>#${shortId}</td>
-        <td>₹${loan.amount.toLocaleString()}</td>
-        <td>${loan.interestRate}%</td>
-        <td>${loan.periodMonths} mo</td>
-        <td>${loan.status}</td>
-        <td>${loan.matchedWith ? loan.matchedWith.name : 'N/A'}</td>
-        <td>
-            ${isMatched && !loan.borrowerAccepted ? `
-                <button class="respond-btn" data-loan-id="${loan._id}" data-action="accept">Accept Match</button>
-                <button class="respond-btn reject" data-loan-id="${loan._id}" data-action="reject">Reject</button>
-            ` : isAccepted ? 'Finalized' : 'Waiting...'}
-        </td>
-    `;
-    return tr;
-};
-
-const createLenderRow = (loan) => {
-    const tr = document.createElement('tr');
-    const shortId = loan._id.slice(-6).toUpperCase();
-    const isMatched = loan.status === 'matched';
-    const isAccepted = loan.status === 'accepted';
-
-    tr.innerHTML = `
-        <td>#${shortId}</td>
-        <td>₹${loan.amount.toLocaleString()}</td>
-        <td>${loan.interestRate}%</td>
-        <td>${loan.borrower.name}</td>
-        <td>${loan.status}</td>
-        <td>
-            ${isMatched && !loan.lenderAccepted ? `
-                <button class="respond-btn" data-loan-id="${loan._id}" data-action="accept">Confirm Fund</button>
-                <button class="respond-btn reject" data-loan-id="${loan._id}" data-action="reject">Withdraw Offer</button>
-            ` : isAccepted ? 'Finalized' : 'Pending Borrower Acceptance'}
-        </td>
-    `;
-    return tr;
-};
-
-
-// --- Data Fetching ---
-
-const fetchDashboardData = async () => {
-    // 1. Fetch Borrowed Loans
-    const borrowedResult = await fetchData(`/loans/borrower/${userId}`);
-    loansBorrowedBody.innerHTML = '';
-    if (borrowedResult.success && borrowedResult.data.length > 0) {
-        borrowedResult.data.forEach(loan => loansBorrowedBody.appendChild(createBorrowerRow(loan)));
+    if (loan.status === 'matched' && loan.borrowerAccepted === false) {
+        actions = `
+            <button class="btn-success" onclick="handleResponse('${loan._id}', 'accept')">Accept</button>
+            <button class="btn-danger" onclick="handleResponse('${loan._id}', 'reject')">Reject</button>
+        `;
+    } else if (loan.status === 'accepted') {
+        actions = `<span class="status-badge status-success">Completed</span>`;
     } else {
-        loansBorrowedBody.innerHTML = `<tr><td colspan="7" class="empty-state-small">No loans requested yet.</td></tr>`;
+         actions = `<span class="status-badge status-secondary">Pending Lender</span>`;
     }
 
-    // 2. Fetch Lent Loans (Lender only)
-    if (userRole === 'lender') {
-        const lentResult = await fetchData(`/loans/lender/${userId}`);
-        document.getElementById('lender-dashboard-section').style.display = 'block';
-        loansLentBody.innerHTML = '';
-        if (lentResult.success && lentResult.data.length > 0) {
-            lentResult.data.forEach(loan => loansLentBody.appendChild(createLenderRow(loan)));
+    const lenderName = loan.matchedWith ? loan.matchedWith.name : 'N/A';
+    
+    return `
+        <tr>
+            <td>#${loan._id.substring(0, 8)}</td>
+            <td>₹${loan.amount.toLocaleString()}</td>
+            <td>${loan.interestRate}% / ${loan.periodMonths} mo</td>
+            <td>${lenderName}</td>
+            <td>${getStatusBadge(loan.status)}</td>
+            <td>${actions}</td>
+        </tr>
+    `;
+};
+
+// --- Lender Loan Rendering ---
+const renderLenderLoan = (loan) => {
+    let actions = '';
+    
+    if (loan.status === 'matched' && loan.lenderAccepted === false) {
+         actions = `
+            <button class="btn-success" onclick="handleResponse('${loan._id}', 'accept')">Accept</button>
+            <button class="btn-danger" onclick="handleResponse('${loan._id}', 'reject')">Reject</button>
+        `;
+    } else if (loan.status === 'accepted') {
+        actions = `<span class="status-badge status-success">Completed</span>`;
+    } else {
+        actions = `<span class="status-badge status-secondary">Pending Borrower</span>`;
+    }
+    
+    const borrowerName = loan.borrower ? loan.borrower.name : 'N/A';
+    
+    return `
+        <tr>
+            <td>#${loan._id.substring(0, 8)}</td>
+            <td>₹${loan.amount.toLocaleString()}</td>
+            <td>${loan.interestRate}% / ${loan.periodMonths} mo</td>
+            <td>${borrowerName}</td>
+            <td>${getStatusBadge(loan.status)}</td>
+            <td>${actions}</td>
+        </tr>
+    `;
+};
+
+
+// --- Fetch Data ---
+const fetchUserLoans = async () => {
+    if (userRole === 'borrower') {
+        borrowerSection.classList.remove('hidden');
+        const result = await fetchData(`/loans/borrower/${userId}`);
+        
+        if (result.success && result.json) {
+            borrowerTableBody.innerHTML = result.json.map(renderBorrowerLoan).join('');
+            if (result.json.length === 0) noBorrowerLoans.classList.remove('hidden');
+            else noBorrowerLoans.classList.add('hidden');
         } else {
-            loansLentBody.innerHTML = `<tr><td colspan="6" class="empty-state-small">No loans matched or funded yet.</td></tr>`;
+            showFlash('Failed to load borrower loans.', 'error');
         }
-    } else {
-        // Hide the lender section if not a lender
-        document.getElementById('lender-dashboard-section').style.display = 'none';
     }
 
-    // Attach listeners after DOM update
-    setupResponseListeners();
+    if (userRole === 'lender') {
+        lenderSection.classList.remove('hidden');
+        const result = await fetchData(`/loans/lender/${userId}`);
+        
+        if (result.success && result.json) {
+            lenderTableBody.innerHTML = result.json.map(renderLenderLoan).join('');
+            if (result.json.length === 0) noLenderLoans.classList.remove('hidden');
+            else noLenderLoans.classList.add('hidden');
+        } else {
+            showFlash('Failed to load lent loans.', 'error');
+        }
+    }
 };
 
-// --- Event Listeners ---
-
-const setupResponseListeners = () => {
-    document.querySelectorAll('.respond-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-            const loanId = e.target.getAttribute('data-loan-id');
-            const action = e.target.getAttribute('data-action');
-            handleResponse(loanId, action);
-        });
-    });
+const fetchKYCStatus = async () => {
+    const result = await fetchData(`/user/profile`);
+    
+    if (result.success && result.email) {
+        const isVerified = result.kyc?.verified;
+        
+        kycStatusDisplay.textContent = isVerified ? 'Verified' : 'Under Review / Unverified';
+        kycStatusDisplay.style.color = isVerified ? 'var(--color-success)' : 'var(--color-danger)';
+        
+    } else {
+        kycStatusDisplay.textContent = 'Error fetching status';
+    }
 };
 
 
-// --- Initialization ---
-
-document.addEventListener('DOMContentLoaded', fetchDashboardData);
+document.addEventListener('DOMContentLoaded', () => {
+    // Expose handleResponse globally so it can be called from inline HTML (onclick)
+    window.handleResponse = handleResponse; 
+    
+    fetchKYCStatus();
+    fetchUserLoans();
+});
