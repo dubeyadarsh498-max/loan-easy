@@ -327,3 +327,6 @@ app.use('/api/admin', adminRouter);
 
 // --- SERVER START ---
 app.listen(PORT, ()=> console.log('Server running', PORT));
+const cors = require('cors');
+app.use(cors());
+// 
