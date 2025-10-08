@@ -12,58 +12,84 @@
         <div class="container">
             <div class="logo"><a href="index.html">P2P Finance</a></div>
             <nav id="auth-links">
-                <a href="login.html" data-auth-link="login">Login</a>
-                <a href="register.html" data-auth-link="register">Register</a>
-                </nav>
+                <a href="login.html" data-auth-link="login" class="hidden">Login</a>
+                <a href="register.html" data-auth-link="register" class="hidden">Register</a>
+                <a href="dashboard.html" data-auth-link="dashboard" class="hidden">Dashboard</a>
+                <a href="create_loan.html" data-auth-link="create_loan" class="hidden">New Loan</a>
+                <a href="profile.html" data-auth-link="profile" class="hidden">Profile</a>
+                <a href="admin.html" data-auth-link="admin" class="hidden">Admin Panel</a>
+                <a href="#" data-auth-link="logout" class="hidden">Logout</a>
+            </nav>
         </div>
     </header>
 
-    <main class="container" style="max-width: 600px;">
+    <main class="container auth-forms">
         <div id="flash-container"></div>
 
         <div class="card">
-            <h1 class="section-title">Create Account</h1>
+            <h1 class="section-title">Register an Account</h1>
             <form id="register-form" enctype="multipart/form-data">
                 
-                <label for="name">Full Name</label>
-                <input type="text" id="name" name="name" required>
-
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
-
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-
-                <label for="role">Account Type</label>
-                <select id="role" name="role" required>
-                    <option value="borrower">Borrower</option>
-                    <option value="lender">Lender</option>
-                </select>
-
-                <div id="lender-fields" class="hidden">
-                    <h2 style="margin-top: 1.5rem; border-top: 1px solid var(--color-border); padding-top: 1rem;">Lender Profile</h2>
-                    
-                    <label for="maxAmount">Max Amount to Lend</label>
-                    <input type="number" id="maxAmount" name="maxAmount" min="1000" placeholder="e.g., 50000">
-                    
-                    <label for="interestRate">Max Interest Rate Accepted (%)</label>
-                    <input type="number" id="interestRate" name="interestRate" step="0.1" min="1" max="50" placeholder="e.g., 12.5">
+                <h2>Account Details</h2>
+                
+                <div>
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div>
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div>
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <h2>Role & KYC</h2>
+                
+                <div>
+                    <label for="role">I want to register as a:</label>
+                    <select id="role" name="role" required>
+                        <option value="borrower">Borrower</option>
+                        <option value="lender">Lender</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="kycDocument">KYC Document (e.g., Passport/ID Scan)</label>
+                    <input type="file" id="kycDocument" name="kycDocument" accept=".pdf, .jpg, .jpeg, .png" required>
+                    <small>Required for both Borrowers and Lenders for verification.</small>
                 </div>
 
-                <h2 style="margin-top: 1.5rem; border-top: 1px solid var(--color-border); padding-top: 1rem;">KYC Documents (Required)</h2>
-                
-                <label for="pan">PAN Card (PDF/Image)</label>
-                <input type="file" id="pan" name="pan" accept=".pdf,image/*" required>
+                <div id="lender-fields" class="hidden">
+                    <h3>Lender Settings (Optional)</h3>
+                    <div>
+                        <label for="maxAmount">Max amount to lend (₹)</label>
+                        <input type="number" id="maxAmount" name="maxAmount" placeholder="e.g., 50000">
+                    </div>
+                    <div>
+                        <label for="interestRate">Preferred Interest Rate (%)</label>
+                        <input type="number" id="interestRate" name="interestRate" step="0.1" placeholder="e.g., 10.5">
+                    </div>
+                </div>
 
-                <label for="aadhaar">Aadhaar Card (PDF/Image)</label>
-                <input type="file" id="aadhaar" name="aadhaar" accept=".pdf,image/*" required>
-                
-                <label for="idProof">Additional ID Proof (e.g., Driving License)</label>
-                <input type="file" id="idProof" name="idProof" accept=".pdf,image/*" required>
-
-                <button type="submit" style="margin-top: 1rem;">Register and Submit KYC</button>
+                <button type="submit">Register & Submit for Review</button>
             </form>
+            <p class="auth-switch">
+                Already have an account? <a href="login.html">Login here</a>.
+            </p>
         </div>
     </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; <span id="current-year"></span> P2P Finance Marketplace. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a> | 
+                <a href="#">Terms of Use</a> | 
+                <a href="mailto:support@p2pfinance.com">Contact Support</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

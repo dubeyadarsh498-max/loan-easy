@@ -97,3 +97,5 @@ const fetchOpenLoans = async () => {
 document.addEventListener('DOMContentLoaded', () => {
     fetchOpenLoans();
 });
+axios.get("http://localhost:5000/api/users")
+    

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Request Loan - P2P Finance</title>
     <link rel="stylesheet" href="style.css">
+    <script type="module" src="auth.js" defer></script>
     <script type="module" src="create_loan.js" defer></script>
 </head>
 <body>
@@ -12,38 +13,59 @@
         <div class="container">
             <div class="logo"><a href="index.html">P2P Finance</a></div>
             <nav id="auth-links">
-                </nav>
+                <a href="login.html" data-auth-link="login" class="hidden">Login</a>
+                <a href="register.html" data-auth-link="register" class="hidden">Register</a>
+                <a href="dashboard.html" data-auth-link="dashboard" class="hidden">Dashboard</a>
+                <a href="create_loan.html" data-auth-link="create_loan" class="hidden">New Loan</a>
+                <a href="profile.html" data-auth-link="profile" class="hidden">Profile</a>
+                <a href="admin.html" data-auth-link="admin" class="hidden">Admin Panel</a>
+                <a href="#" data-auth-link="logout" class="hidden">Logout</a>
+            </nav>
         </div>
     </header>
 
     <main class="container" style="max-width: 600px;">
-        <div id="flash-container"></div>
+        <h1 class="section-title">Request a New Loan</h1>
         
+        <div id="flash-container"></div>
+
+        <p id="kyc-warning" class="flash-message error hidden">
+            **Action Required:** You must be KYC-verified to submit a loan request. Your account is currently under review or unverified.
+        </p>
+
         <div class="card">
-            <h1 class="section-title">Create New Loan Request</h1>
-            <p id="kyc-warning" class="flash-error hidden" style="margin-bottom: 1.5rem;">
-                Your KYC is not yet verified. You must be verified to create a loan request.
-            </p>
-
             <form id="create-loan-form">
-                <label for="amount">Loan Amount (₹)</label>
-                <input type="number" id="amount" name="amount" min="1000" step="100" required placeholder="e.g., 50000">
-
-                <label for="interestRate">Interest Rate Offered (%)</label>
-                <input type="number" id="interestRate" name="interestRate" step="0.1" min="5" max="30" required placeholder="e.g., 10.5">
-
-                <label for="periodMonths">Repayment Period (Months)</label>
-                <select id="periodMonths" name="periodMonths" required>
-                    <option value="6">6 Months</option>
-                    <option value="12">12 Months</option>
-                    <option value="18">18 Months</option>
-                    <option value="24">24 Months</option>
-                    <option value="36">36 Months</option>
-                </select>
-
-                <button type="submit" style="margin-top: 1rem;">Submit Request</button>
+                
+                <div>
+                    <label for="amount">Loan Amount (₹)</label>
+                    <input type="number" id="amount" name="amount" required min="1000" placeholder="Minimum 1000">
+                </div>
+                
+                <div>
+                    <label for="interestRate">Maximum Interest Rate (%)</label>
+                    <input type="number" id="interestRate" name="interestRate" step="0.1" required min="5" max="25" placeholder="e.g., 12.5">
+                    <small>The rate you are willing to pay. A lower rate is less likely to be matched quickly.</small>
+                </div>
+                
+                <div>
+                    <label for="periodMonths">Repayment Period (Months)</label>
+                    <input type="number" id="periodMonths" name="periodMonths" required min="6" max="60" placeholder="6 to 60 months">
+                </div>
+                
+                <button type="submit">Submit Loan Request</button>
             </form>
         </div>
     </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; <span id="current-year"></span> P2P Finance Marketplace. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a> | 
+                <a href="#">Terms of Use</a> | 
+                <a href="mailto:support@p2pfinance.com">Contact Support</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

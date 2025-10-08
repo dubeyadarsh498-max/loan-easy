@@ -1,334 +1,447 @@
-/* style.css - FINAL CORRECTED VERSION (Header fixed to TOP) */
+/* style.css - FINAL VERSION with Custom UI */
 
+/*
+================================
+1. CSS Variables & Global Reset (Refreshed)
+================================
+*/
 :root {
-    /* Color Palette */
-    --color-primary: #007bff;        
-    --color-secondary: #6c757d;      
-    --color-success: #28a745;        
-    --color-danger: #dc3545;         
-    --color-warning: #ffc107;        
+    /* Color Palette - Professional and Trustworthy */
+    --color-primary: #3498db;      /* Sky Blue for actions/links */
+    --color-primary-dark: #2980b9; /* Darker Blue for hover */
+    --color-accent: #2ecc71;      /* Green for success/highlights */
+    --color-text: #2c3e50;         /* Dark Charcoal for readability */
+    --color-secondary-text: #7f8c8d;/* Muted Gray for secondary info */
+    --color-background: #ecf0f1;  /* Very Light Gray page background */
+    --color-card-background: #ffffff; /* Crisp White card/form background */
+    --color-border: #bdc3c7;      /* Light, subtle border color */
     
-    /* Backgrounds & Surfaces */
-    --color-background: #f8f9fa;     
-    --color-card-background: #ffffff;
-    --color-text: #343a40;           
-    --color-border: #dee2e6;         
-
+    /* Status Colors */
+    --color-success: #27ae60;
+    --color-error: #e74c3c;
+    --color-warning: #f39c12; /* Added for open loans/warnings */
+    
+    /* Spacing & Style */
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 40px;
+    
+    --border-radius-sm: 4px;
+    --border-radius-md: 8px;
+    --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.08); /* Subtle lift */
+    --shadow-hover: 0 8px 16px rgba(0, 0, 0, 0.15); /* Pronounced lift on hover */
+    
     /* Typography */
-    --font-family-sans: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --font-size-base: 16px;
-
-    /* Spacing & Effects */
-    --spacing-unit: 1rem;
-    --border-radius-base: 0.25rem;
-    --box-shadow-subtle: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
-    --box-shadow-hover: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.1);
+    --font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* --- Base Styles --- */
-html {
-    /* Make the page stretch to full height */
-    height: 100%; 
+/* Reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
+
 body {
-    font-family: var(--font-family-sans);
+    font-family: var(--font-family);
     background-color: var(--color-background);
     color: var(--color-text);
     line-height: 1.6;
-    margin: 0;
-    padding: 0;
-    /* Remove padding-bottom and add padding-top equal to header height */
-    padding-top: 4rem; /* Adjusted for standard fixed header height */
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
+    min-height: 100vh;
+    /* Added padding for fixed header */
+    padding-top: calc(3.5rem + var(--spacing-sm)); 
 }
+
+/*
+================================
+2. Layout & Structure
+================================
+*/
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 var(--spacing-unit);
+    padding: 0 var(--spacing-md);
 }
 
-/* --- Header & Navigation (Fixed to TOP) --- */
+main {
+    padding-top: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
+    flex-grow: 1; 
+}
+
+
+/*
+================================
+3. Header and Navigation
+================================
+*/
+
 header {
-    position: fixed;        /* Fixes the header relative to the viewport */
-    top: 0;                 /* Pins it to the TOP */
-    width: 100%;            
-    z-index: 1000;          
+    /* Fixed to Top */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
     
     background-color: var(--color-card-background);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Shadow facing downwards */
-    padding: 0.5rem 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: var(--spacing-sm) 0; /* Adjusted for fixed positioning */
 }
 
 header .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .logo a {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--color-primary);
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--color-primary-dark);
     text-decoration: none;
+    letter-spacing: -0.5px;
 }
 
-nav a {
+.main-nav a {
     color: var(--color-text);
     text-decoration: none;
-    margin-left: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: var(--border-radius-base);
-    transition: background-color 0.2s;
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin-left: var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    transition: background-color 0.2s, color 0.2s;
+    font-weight: 500;
 }
 
-nav a:hover {
-    background-color: var(--color-border);
-}
-
-nav a.hidden {
-    display: none;
-}
-
-/* --- Main Content --- */
-main {
-    flex-grow: 1; /* Ensures main content takes up remaining vertical space */
-    padding-top: calc(var(--spacing-unit) * 1);
-    padding-bottom: calc(var(--spacing-unit) * 2); /* Space above footer */
-}
-
-/* --- Buttons & Forms (Rest of CSS is unchanged from previous final version) --- */
-button, .button, input[type="submit"] {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--border-radius-base);
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
-    transition: all 0.2s;
-    border: none;
-}
-/* ... (Rest of Button and Form CSS) ... */
-
-/* Primary Button Style */
-button, input[type="submit"] {
+.main-nav a:hover {
     background-color: var(--color-primary);
-    color: var(--color-card-background);
+    color: white;
 }
 
-button:hover, input[type="submit"]:hover {
-    background-color: #0056b3; 
-    box-shadow: var(--box-shadow-subtle);
+/* Auth Links Container (used instead of .main-nav in our previous HTML) */
+#auth-links {
+    display: flex;
+    gap: var(--spacing-sm);
 }
 
-/* Secondary/Danger/Success Status Buttons */
-.btn-success { background-color: var(--color-success); color: white; }
-.btn-danger { background-color: var(--color-danger); color: white; }
-.btn-secondary { background-color: var(--color-secondary); color: white; }
+.hidden { display: none !important; }
 
-.btn-success:hover { background-color: #1e7e34; }
-.btn-danger:hover { background-color: #bd2130; }
-.btn-secondary:hover { background-color: #5a6268; }
+/*
+================================
+4. Typography & Headings
+================================
+*/
 
-/* Input Fields */
-input[type="text"],
-input[type="email"],
-input[type="password"],
+h1 {
+    font-size: 2.2rem;
+    color: var(--color-primary-dark);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+}
+
+.section-title { /* Using this for H1 in HTML */
+    font-size: 2.2rem;
+    color: var(--color-primary-dark);
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-sm);
+    border-bottom: 2px solid var(--color-border);
+}
+
+h2 {
+    font-size: 1.6rem;
+    color: var(--color-text);
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: var(--spacing-sm);
+}
+
+h3 {
+    font-size: 1.2rem;
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+/* Dashboard balance text (repurposed for KYC status container) */
+.balance {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: var(--color-accent);
+    margin-bottom: var(--spacing-xl);
+    padding: var(--spacing-md);
+    background-color: #e8f8f5; 
+    border-left: 5px solid var(--color-accent);
+    border-radius: var(--border-radius-sm);
+}
+
+/*
+================================
+5. Forms & Inputs (Refreshed Styles)
+================================
+*/
+
+.card, .form-card { /* Renamed .form-card to .card for consistency */
+    background-color: var(--color-card-background);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-subtle);
+    margin-bottom: var(--spacing-lg);
+    display: grid;
+    gap: var(--spacing-md);
+    transition: box-shadow 0.3s;
+}
+
+.card:hover, .form-card:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+    margin-top: var(--spacing-sm);
+    color: var(--color-text);
+}
+
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
 input[type="number"],
+input[type="file"],
 select,
 textarea {
     width: 100%;
-    padding: 0.75rem;
-    margin-bottom: var(--spacing-unit);
+    padding: var(--spacing-sm);
     border: 1px solid var(--color-border);
-    border-radius: var(--border-radius-base);
-    box-sizing: border-box;
+    border-radius: var(--border-radius-sm);
+    font-size: 1rem;
+    color: var(--color-text);
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 input:focus, select:focus, textarea:focus {
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
     outline: none;
 }
 
-form label {
-    display: block;
-    margin-bottom: 0.5rem;
+/* Buttons */
+button,
+.button { /* Used .button instead of .button-link for consistency with HTML */
+    display: inline-block;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: background-color 0.2s, box-shadow 0.2s;
     font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    width: 100%; 
 }
 
-/* --- Cards and Sections --- */
-.section-title {
-    color: var(--color-primary);
-    border-bottom: 2px solid var(--color-border);
-    padding-bottom: 0.5rem;
-    margin-bottom: calc(var(--spacing-unit) * 1.5);
+button:hover,
+.button:hover {
+    background-color: var(--color-primary-dark);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Card Style (for loan items, profile forms, etc.) */
-.card {
-    background-color: var(--color-card-background);
-    padding: calc(var(--spacing-unit) * 1.5);
-    border-radius: var(--border-radius-base);
-    box-shadow: var(--box-shadow-subtle);
-    margin-bottom: calc(var(--spacing-unit) * 2);
-    border: 1px solid var(--color-border);
+.btn-success { background-color: var(--color-success); }
+.btn-danger { background-color: var(--color-error); }
+.btn-secondary { background-color: var(--color-secondary-text); }
+
+.btn-success:hover { background-color: #249d56; }
+.btn-danger:hover { background-color: #d13a2a; }
+.btn-secondary:hover { background-color: #61737f; }
+
+
+/* Auth Specific */
+.auth-forms {
+    max-width: 900px;
+    margin: 0 auto;
+}
+.auth-forms.single-form {
+    max-width: 450px;
 }
 
-.card:hover {
-    box-shadow: var(--box-shadow-hover);
-}
+/*
+================================
+6. Loan List & Items
+================================
+*/
 
-
-/* --- Loan List (Home Page) --- */
-.loan-grid {
+.loan-list, .loan-grid { /* Both grid classes now use the same style */
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-unit);
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-md);
 }
 
-.loan-item h3 {
-    margin-top: 0;
-    color: var(--color-primary);
+.loan-item {
+    background-color: var(--color-card-background);
+    padding: var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-subtle);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.loan-item:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
 }
 
 .loan-item p {
-    margin: 0.5rem 0;
-    font-size: 0.95rem;
+    margin-bottom: 4px;
+    color: var(--color-secondary-text);
+}
+
+.loan-item p strong {
+    color: var(--color-text);
 }
 
 .fund-form {
-    margin-top: var(--spacing-unit);
-    padding-top: var(--spacing-unit);
-    border-top: 1px solid var(--color-border);
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px dashed var(--color-border);
     display: flex;
-    gap: var(--spacing-unit);
     align-items: center;
+    gap: var(--spacing-sm);
 }
 
-.fund-form input[type="number"] {
-    width: 150px; 
+.fund-form input {
+    flex-grow: 1;
+    max-width: 120px;
     margin-bottom: 0;
 }
 
-
-/* --- Dashboard Specifics --- */
-.dashboard-section {
-    margin-bottom: calc(var(--spacing-unit) * 3);
+.fund-form button {
+    width: auto;
+    padding: var(--spacing-sm) var(--spacing-md);
 }
 
+/* Loan Table (for dashboard/admin) */
 .loan-table {
     width: 100%;
     border-collapse: collapse;
-    background-color: var(--color-card-background);
-    box-shadow: var(--box-shadow-subtle);
-    border-radius: var(--border-radius-base);
-    overflow: hidden; 
+    margin-top: var(--spacing-md);
 }
 
 .loan-table th, .loan-table td {
-    padding: 1rem;
+    padding: var(--spacing-sm) var(--spacing-md);
     text-align: left;
     border-bottom: 1px solid var(--color-border);
-    font-size: 0.9rem;
 }
 
 .loan-table th {
-    background-color: #e9ecef;
+    background-color: #f4f6f7;
     font-weight: 700;
-    color: var(--color-text);
-    text-transform: uppercase;
-    font-size: 0.8rem;
+    color: var(--color-secondary-text);
 }
 
-.loan-table tr:last-child td {
-    border-bottom: none;
-}
-
+/* Status Badges */
 .status-badge {
-    padding: 0.25rem 0.5rem;
-    border-radius: var(--border-radius-base);
-    font-weight: 600;
-    font-size: 0.8rem;
     display: inline-block;
+    padding: 4px 8px;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
 }
-
-.status-open { background-color: var(--color-warning); color: #856404; }
-.status-matched { background-color: #cfe2ff; color: var(--color-primary); } 
-.status-accepted { background-color: var(--color-success); color: white; }
-.status-rejected, .status-review { background-color: var(--color-danger); color: white; }
-
-
-/* --- Footer Styles --- */
-footer {
-    margin-top: auto; /* Pushes the footer to the bottom */
-    background-color: var(--color-text);
-    color: #ffffff;
-    padding: calc(var(--spacing-unit) * 1) 0;
-    text-align: center;
-    font-size: 0.85rem;
-    line-height: 1.5;
-}
-
-footer .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-footer p {
-    margin: 0.25rem 0;
-}
-
-.footer-links a {
-    color: #cccccc;
-    text-decoration: none;
-    margin: 0 0.5rem;
-    transition: color 0.2s;
-}
-
-.footer-links a:hover {
-    color: var(--color-primary);
-}
+.status-open { background-color: #fcf8e3; color: var(--color-warning); }
+.status-matched { background-color: #d9edf7; color: var(--color-primary); }
+.status-accepted { background-color: #dff0d8; color: var(--color-success); }
+.status-rejected, .status-review { background-color: #f2dede; color: var(--color-error); }
 
 
-/* --- Utility Styles --- */
-.hidden {
-    display: none !important;
-}
-
+/* Empty State */
 .empty-state {
+    grid-column: 1 / -1; 
     text-align: center;
-    padding: calc(var(--spacing-unit) * 4);
-    background-color: var(--color-card-background);
-    border: 1px dashed var(--color-border);
-    border-radius: var(--border-radius-base);
-    color: var(--color-secondary);
-    font-size: 1.1rem;
+    padding: var(--spacing-xl);
+    color: var(--color-secondary-text);
+    font-style: italic;
+    border: 2px dashed var(--color-border);
+    border-radius: var(--border-radius-md);
+    margin-top: var(--spacing-lg);
+}
+
+/*
+================================
+7. Flash Messages
+================================
+*/
+
+#flash-container {
+    margin-top: var(--spacing-md);
 }
 
 .flash-message {
-    padding: var(--spacing-unit);
-    margin-bottom: var(--spacing-unit);
-    border-radius: var(--border-radius-base);
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    border-radius: var(--border-radius-md);
     font-weight: 600;
-    border: 1px solid transparent;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
+/* Specific flash message categories */
 .flash-success {
     background-color: #d4edda;
-    color: #155724;
-    border-color: #c3e6cb;
+    color: var(--color-success);
+    border-left: 4px solid var(--color-success);
 }
 
 .flash-error {
     background-color: #f8d7da;
-    color: #721c24;
-    border-color: #f5c6cb;
+    color: var(--color-error);
+    border-left: 4px solid var(--color-error);
+}
+
+/*
+================================
+8. Footer
+================================
+*/
+
+footer {
+    text-align: center;
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-xl);
+    border-top: 1px solid var(--color-border);
+    color: var(--color-secondary-text);
+    font-size: 0.9rem;
+    background-color: var(--color-card-background);
+}
+
+/*
+================================
+9. Media Queries
+================================
+*/
+
+@media (min-width: 768px) {
+    .container {
+        padding: 0 var(--spacing-xl);
+    }
+    
+    .auth-forms:not(.single-form) {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-xl);
+    }
+    
+    .auth-forms .card {
+        padding: var(--spacing-xl);
+    }
+
+    /* Adjust button width for non-form contexts */
+    .dashboard-section .button {
+        width: auto;
+        margin-top: var(--spacing-md);
+    }
 }

@@ -16,6 +16,7 @@
                 <a href="login.html" data-auth-link="login" class="hidden">Login</a>
                 <a href="register.html" data-auth-link="register" class="hidden">Register</a>
                 <a href="dashboard.html" data-auth-link="dashboard" class="hidden">Dashboard</a>
+                <a href="create_loan.html" data-auth-link="create_loan" class="hidden">New Loan</a>
                 <a href="profile.html" data-auth-link="profile" class="hidden">Profile</a>
                 <a href="admin.html" data-auth-link="admin" class="hidden">Admin Panel</a>
                 <a href="#" data-auth-link="logout" class="hidden">Logout</a>
@@ -29,11 +30,10 @@
         <div id="flash-container"></div>
         
         <p id="no-loans-message" class="empty-state hidden">
-            No open loan requests are currently available. <br>
-            (Only KYC-verified borrowers' requests are shown to verified lenders.)
+            Welcome to the Marketplace! No open loan requests are currently available, or you need to log in as a verified Lender to view them.
         </p>
         
-        <section id="loan-list" class="loan-grid"></section>
+        <section id="loan-list" class="loan-list"></section>
     </main>
     
     <footer>

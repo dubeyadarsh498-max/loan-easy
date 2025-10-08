@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - P2P Finance</title>
     <link rel="stylesheet" href="style.css">
+    <script type="module" src="auth.js" defer></script>
     <script type="module" src="profile.js" defer></script>
 </head>
 <body>
@@ -12,37 +13,70 @@
         <div class="container">
             <div class="logo"><a href="index.html">P2P Finance</a></div>
             <nav id="auth-links">
-                </nav>
+                <a href="login.html" data-auth-link="login" class="hidden">Login</a>
+                <a href="register.html" data-auth-link="register" class="hidden">Register</a>
+                <a href="dashboard.html" data-auth-link="dashboard" class="hidden">Dashboard</a>
+                <a href="create_loan.html" data-auth-link="create_loan" class="hidden">New Loan</a>
+                <a href="profile.html" data-auth-link="profile" class="hidden">Profile</a>
+                <a href="admin.html" data-auth-link="admin" class="hidden">Admin Panel</a>
+                <a href="#" data-auth-link="logout" class="hidden">Logout</a>
+            </nav>
         </div>
     </header>
 
     <main class="container" style="max-width: 600px;">
+        <h1 class="section-title">User Profile & Settings</h1>
+        
         <div id="flash-container"></div>
 
         <div class="card">
-            <h1 class="section-title">User Profile</h1>
-            <p style="margin-bottom: 1rem;">**Role:** <span id="user-role-display"></span></p>
-
             <form id="profile-form">
-                <h2>General Information</h2>
-                <label for="name">Full Name</label>
-                <input type="text" id="name" name="name" required>
-
-                <label for="email">Email (Read-Only)</label>
-                <input type="email" id="email" name="email" disabled>
                 
-                <div id="lender-fields" class="hidden" style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--color-border);">
-                    <h2>Lender Settings</h2>
-                    <label for="maxAmount">Max Amount to Lend (₹)</label>
-                    <input type="number" id="maxAmount" name="maxAmount" min="0" placeholder="e.g., 50000">
-                    
-                    <label for="interestRate">Max Interest Rate Accepted (%)</label>
-                    <input type="number" id="interestRate" name="interestRate" step="0.1" min="1" max="50" placeholder="e.g., 12.5">
+                <h2>Personal Details</h2>
+
+                <div>
+                    <label>Account Role</label>
+                    <p id="user-role-display" style="font-weight: 700; color: var(--color-primary);">Loading...</p>
                 </div>
 
-                <button type="submit" style="margin-top: 1.5rem;">Update Profile</button>
+                <div>
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                
+                <div>
+                    <label for="email">Email (Cannot be changed)</label>
+                    <input type="email" id="email" name="email" disabled>
+                </div>
+
+                <div id="lender-fields" class="hidden" style="border-top: 1px solid var(--color-border); padding-top: var(--spacing-md);">
+                    <h2>Lender Profile Settings</h2>
+                    <div>
+                        <label for="maxAmount">Max amount to lend (₹)</label>
+                        <input type="number" id="maxAmount" name="maxAmount" placeholder="e.g., 50000">
+                        <small>Sets the maximum loan amount you are willing to fund.</small>
+                    </div>
+                    <div>
+                        <label for="interestRate">Preferred Interest Rate (%)</label>
+                        <input type="number" id="interestRate" name="interestRate" step="0.1" placeholder="e.g., 10.5">
+                        <small>Sets the minimum interest rate you will accept.</small>
+                    </div>
+                </div>
+
+                <button type="submit">Update Profile</button>
             </form>
         </div>
     </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; <span id="current-year"></span> P2P Finance Marketplace. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a> | 
+                <a href="#">Terms of Use</a> | 
+                <a href="mailto:support@p2pfinance.com">Contact Support</a>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>
